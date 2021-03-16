@@ -27,8 +27,8 @@ from torchvision import datasets
 from torch.autograd import Variable
 import torch.autograd as autograd
 
-from utils.models import *
-from utils.datasets import *
+from utils.stargan_models import *
+from feeder.stargan_feeder import Feeder
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -47,22 +47,44 @@ parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first 
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--decay_epoch", type=int, default=100, help="epoch from which to start lr decay")
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
-parser.add_argument("--img_height", type=int, default=128, help="size of image height")
-parser.add_argument("--img_width", type=int, default=128, help="size of image width")
+parser.add_argument("--img_height", type=int, default=300, help="size of image height")
+parser.add_argument("--img_width", type=int, default=25, help="size of image width")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=400, help="interval between saving generator samples")
-parser.add_argument("--checkpoint_interval", type=int, default=-1, help="interval between model checkpoints")
+parser.add_argument("--checkpoint_interval", type=int, default=5, help="interval between model checkpoints")
 parser.add_argument("--residual_blocks", type=int, default=6, help="number of residual blocks in generator")
+parser.add_argument(
+    "--train_path", 
+    type=str, 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", 
+    help="path to train data")
+parser.add_argument(
+    "--train_label_path", 
+    type=str, 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", 
+    help="path to label")
+parser.add_argument(
+    "--val_path", 
+    type=str, 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_data.npy", 
+    help="path to val data")
+parser.add_argument(
+    "--val_label_path", 
+    type=str, 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_label.pkl", 
+    help="path to val label")
 parser.add_argument(
     "--selected_attrs",
     "--list",
     nargs="+",
+    type=int,
     help="selected attributes for the CelebA dataset",
-    default=["Black_Hair", "Blond_Hair", "Brown_Hair", "Male", "Young"],
+    default=[6, 7, 23, 26, 39],
 )
 parser.add_argument("--n_critic", type=int, default=5, help="number of training iterations for WGAN discriminator")
 opt = parser.parse_args()
 print(opt)
+
 
 c_dim = len(opt.selected_attrs)
 img_shape = (opt.channels, opt.img_height, opt.img_width)
@@ -103,33 +125,16 @@ optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1,
 optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
 
 # Configure dataloaders
-train_transforms = [
-    transforms.Resize(int(1.12 * opt.img_height), Image.BICUBIC),
-    transforms.RandomCrop(opt.img_height),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-]
-
 dataloader = DataLoader(
-    CelebADataset(
-        "../../data/%s" % opt.dataset_name, transforms_=train_transforms, mode="train", attributes=opt.selected_attrs
-    ),
+    dataset=Feeder(opt.train_path, opt.train_label_path, opt.selected_attrs),
     batch_size=opt.batch_size,
     shuffle=True,
     num_workers=opt.n_cpu,
+
 )
 
-val_transforms = [
-    transforms.Resize((opt.img_height, opt.img_width), Image.BICUBIC),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-]
-
 val_dataloader = DataLoader(
-    CelebADataset(
-        "../../data/%s" % opt.dataset_name, transforms_=val_transforms, mode="val", attributes=opt.selected_attrs
-    ),
+    dataset=Feeder(opt.val_path, opt.val_label_path, opt.selected_attrs),
     batch_size=10,
     shuffle=True,
     num_workers=1,
@@ -162,11 +167,11 @@ def compute_gradient_penalty(D, real_samples, fake_samples):
 
 
 label_changes = [
-    ((0, 1), (1, 0), (2, 0)),  # Set to black hair
-    ((0, 0), (1, 1), (2, 0)),  # Set to blonde hair
-    ((0, 0), (1, 0), (2, 1)),  # Set to brown hair
-    ((3, -1),),  # Flip gender
-    ((4, -1),),  # Age flip
+    ((0, 1), (1, 0), (2, 0), (3, 0), (4, 0)),  # Set to black hair and let the rest 0
+    ((0, 0), (1, 1), (2, 0), (3, 0), (4, 0)),  # Set to blonde hair and let the rest 0
+    ((0, 0), (1, 0), (2, 1), (3, 0), (4, 0)),  # Set to brown hair and let the rest 0
+    ((0, 0), (1, 0), (2, 0), (3, 1), (4, 0)),  # Set to blonde hair and let the rest 0
+    ((0, 0), (1, 0), (2, 0), (3, 0), (4, 1)),  # Set to brown hair and let the rest 0
 ]
 
 
@@ -176,8 +181,14 @@ def sample_images(batches_done):
     val_imgs = Variable(val_imgs.type(Tensor))
     val_labels = Variable(val_labels.type(Tensor))
     img_samples = None
+
+
+    if not os.path.exists('images/'+str(batches_done)):
+        os.makedirs('images/'+str(batches_done))
+
+
     for i in range(10):
-        img, label = val_imgs[i], val_labels[i]
+        img, label, olabel = val_imgs[i], val_labels[i], val_labels[i]
         # Repeat for number of label changes
         imgs = img.repeat(c_dim, 1, 1, 1)
         labels = label.repeat(c_dim, 1)
@@ -187,14 +198,12 @@ def sample_images(batches_done):
                 labels[sample_i, col] = 1 - labels[sample_i, col] if val == -1 else val
 
         # Generate translations
-        gen_imgs = generator(imgs, labels)
+        gen_imgs = generator(imgs, labels) ######################
         # Concatenate images by width
-        gen_imgs = torch.cat([x for x in gen_imgs.data], -1)
-        img_sample = torch.cat((img.data, gen_imgs), -1)
-        # Add as row to generated samples
-        img_samples = img_sample if img_samples is None else torch.cat((img_samples, img_sample), -2)
-
-    save_image(img_samples.view(1, *img_samples.shape), "images/%s.png" % batches_done, normalize=True)
+        img_sample = torch.cat((img.view(1,img.size(0),img.size(1),img.size(2)).data, gen_imgs), 0).cpu().detach().numpy()
+        
+        with open(os.path.join('images/'+str(batches_done), str(batches_done)+'_'+str(i)+'.npy'), 'wb') as npf:
+            np.save(npf, img_sample)
 
 
 # ----------
@@ -229,6 +238,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
         gradient_penalty = compute_gradient_penalty(discriminator, imgs.data, fake_imgs.data)
         # Adversarial loss
         loss_D_adv = -torch.mean(real_validity) + torch.mean(fake_validity) + lambda_gp * gradient_penalty
+
         # Classification loss
         loss_D_cls = criterion_cls(pred_cls, labels)
         # Total loss

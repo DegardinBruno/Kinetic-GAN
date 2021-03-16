@@ -1,6 +1,7 @@
 import numpy as np
 import os, re, random
 import pickle
+import torch
 
 
 def humanSort(text):  # Sort function for strings w/ numbers
@@ -23,8 +24,9 @@ classes = [0,1,2,3,4,5,6,7,8,9,10,11]
 
 annotations = []
 for l in label:
-    labels = [1*(classes==l)]
+    labels = 1*(classes==l)
     annotations.append(labels)
 
-annotations = np.array(annotations[-3])
-print(annotations)
+annotations = np.array(annotations)
+print(annotations.shape)
+

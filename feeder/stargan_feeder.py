@@ -30,8 +30,8 @@ class Feeder(torch.utils.data.Dataset):
                  mmap=True):
         self.data_path = data_path
         self.label_path = label_path
+        self.classes = np.array(classes)
         self.load_data(mmap)
-        self.classes = np.arange(0,60,1)
 
     def load_data(self, mmap):
         # data: N C V T M
@@ -52,18 +52,19 @@ class Feeder(torch.utils.data.Dataset):
     def get_annotations(self):
         annotations = []
         for l in self.label:
-            labels = [1*(self.classes == l)]
+            labels = 1*(self.classes == l)
             annotations.append(labels)
         return annotations
 
 
     def __len__(self):
-        return len(self.label)
+        return len(self.annotations)
 
     def __getitem__(self, index):
         # get data
-        data_numpy = np.array(self.data[index])
+        data_numpy = np.array(self.data[index][:,:,:,0])
         label = self.annotations[index]
-        label = torch.FloatTensor(np.array(label))
+        label = torch.FloatTensor(label)
+
 
         return data_numpy, label

@@ -61,7 +61,7 @@ class GeneratorResNet(nn.Module):
         # Upsampling
         for _ in range(2):
             model += [
-                nn.ConvTranspose2d(curr_dim, curr_dim // 2, 4, stride=2, padding=1, bias=False),
+                nn.ConvTranspose2d(curr_dim, curr_dim // 2, 4, stride=2, padding=1, bias=False, output_padding=[0, 1] if _ == 1 else 0),
                 nn.InstanceNorm2d(curr_dim // 2, affine=True, track_running_stats=True),
                 nn.ReLU(inplace=True),
             ]
@@ -69,7 +69,7 @@ class GeneratorResNet(nn.Module):
 
         # Output layer
         model += [nn.Conv2d(curr_dim, channels, 7, stride=1, padding=3), nn.Tanh()]
-
+    
         self.model = nn.Sequential(*model)
 
     def forward(self, x, c):
@@ -89,15 +89,15 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
         channels, img_size, _ = img_shape
 
-        def discriminator_block(in_filters, out_filters):
+        def discriminator_block(in_filters, out_filters, l):
             """Returns downsampling layers of each discriminator block"""
-            layers = [nn.Conv2d(in_filters, out_filters, 4, stride=2, padding=1), nn.LeakyReLU(0.01)]
+            layers = [nn.Conv2d(in_filters, out_filters, 4 if l < n_strided - 3 else 1, stride=2, padding=1), nn.LeakyReLU(0.01)]
             return layers
 
-        layers = discriminator_block(channels, 64)
+        layers = discriminator_block(channels, 64, 0)
         curr_dim = 64
-        for _ in range(n_strided - 1):
-            layers.extend(discriminator_block(curr_dim, curr_dim * 2))
+        for l in range(n_strided - 1):
+            layers.extend(discriminator_block(curr_dim, curr_dim * 2, l))
             curr_dim *= 2
 
         self.model = nn.Sequential(*layers)
@@ -105,7 +105,7 @@ class Discriminator(nn.Module):
         # Output 1: PatchGAN
         self.out1 = nn.Conv2d(curr_dim, 1, 3, padding=1, bias=False)
         # Output 2: Class prediction
-        kernel_size = img_size // 2 ** n_strided
+        kernel_size = (6,2)  # img_size // 2 ** n_strided
         self.out2 = nn.Conv2d(curr_dim, c_dim, kernel_size, bias=False)
 
     def forward(self, img):
