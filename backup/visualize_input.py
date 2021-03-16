@@ -28,7 +28,7 @@ def rotation(data, alpha=0, beta=0):
 
 def normal_skeleton(data):
     #  use as center joint
-    center_joint = data[:, 0, :]
+    center_joint = data[0, :, 0, :]
 
     center_jointx = np.mean(center_joint[:, 0])
     center_jointy = np.mean(center_joint[:, 1])
@@ -75,17 +75,17 @@ leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
 
-root_data = '/home/socialab/Desktop/PhD/Projects/Graph-GAN/images/3600.npy'
+root_data = '/home/degardin/DATASET/REGINA/SSMs/NTU/xview/train_NTU_xview_skeleton_joint.npy'
 data = np.load(root_data, mmap_mode='r')
 
 
-data_numpy = np.transpose(data[0], (1, 2, 0))
+data_numpy = np.transpose(data[10], (3, 1, 2, 0))
 data_numpy = rotation(data_numpy, 0,50)
 data_numpy = normal_skeleton(data_numpy)
 
 
 print(data_numpy.shape)
-T, V, _ = data_numpy.shape
+M, T, V, _ = data_numpy.shape
 init_horizon=-45
 init_vertical=20
 
@@ -104,9 +104,9 @@ for frame_idx in range(data_numpy.shape[1]):
     ax.set_ylim3d([-1, 1])
     ax.set_zlim3d([0, 1.8])
 
-    x = data_numpy[frame_idx, :, 0]
-    y = data_numpy[frame_idx, :, 1]
-    z = data_numpy[frame_idx, :, 2]
+    x = data_numpy[0, frame_idx, :, 0]
+    y = data_numpy[0, frame_idx, :, 1]
+    z = data_numpy[0, frame_idx, :, 2]
 
     if x[0] == x[1] == x[2]:
         break
