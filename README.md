@@ -2,7 +2,7 @@
 Code for the paper "Generative Adversarial Graph Convolutional Networks to Synthesize Human Actions ", WACV 2022
 
 
-## cGAN with Skeleton Input
+### cGAN with Skeleton Input
 Conditional-GAN adapted with NTU-RGB+D as input
 
 #### Train
