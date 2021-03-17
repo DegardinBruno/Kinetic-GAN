@@ -10,7 +10,7 @@ def humanSort(text):  # Sort function for strings w/ numbers
     return sorted(text, key=arrayKey)
 
 
-
+'''
 label_path = '/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl'
 # load label
 with open(label_path, 'rb') as f:
@@ -28,5 +28,15 @@ for l in label:
     annotations.append(labels)
 
 annotations = np.array(annotations)
-print(annotations.shape)
+print(annotations.shape)'''
 
+classes = np.array([1,2,3]) # 0 1 2 0
+
+test = np.array([1,2,3,4,1,5,6,7]) # 1 2 3 1
+
+
+test = test[np.where(np.isin(test,classes))]
+
+print(np.nonzero(test[:, None] == classes)[1])
+
+print(np.arange(0,60,1))
