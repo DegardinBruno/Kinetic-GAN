@@ -30,7 +30,7 @@ class Feeder(torch.utils.data.Dataset):
                  mmap=True):
         self.data_path = data_path
         self.label_path = label_path
-        self.classes = classes # np.arange(0,60,1) [0, 1, 2, 3, 9, 10, 11, 27, 28, 29, 32] 
+        self.classes = [0, 1, 2, 3, 9, 10, 11, 27, 28, 29, 32] # classes # np.arange(0,60,1)
 
         self.load_data(mmap)
 
@@ -48,7 +48,7 @@ class Feeder(torch.utils.data.Dataset):
         else:
             self.data = np.load(self.data_path)
 
-        if classes is not None:
+        if self.classes is not None:
             self.label = self.label[np.where(np.isin(self.label, self.classes))]
             self.label = np.nonzero(self.label[:, None] == self.classes)[1]
             self.data  = self.data[np.where(np.isin(self.label, self.classes))]

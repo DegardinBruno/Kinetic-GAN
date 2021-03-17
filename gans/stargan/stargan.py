@@ -113,7 +113,7 @@ train_transforms = [
 
 dataloader = DataLoader(
     CelebADataset(
-        "/home/degar/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=train_transforms, mode="train", attributes=opt.selected_attrs
+        "/home/degardin/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=train_transforms, mode="train", attributes=opt.selected_attrs
     ),
     batch_size=opt.batch_size,
     shuffle=True,
@@ -128,7 +128,7 @@ val_transforms = [
 
 val_dataloader = DataLoader(
     CelebADataset(
-        "/home/degar/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=val_transforms, mode="val", attributes=opt.selected_attrs
+        "/home/degardin/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=val_transforms, mode="val", attributes=opt.selected_attrs
     ),
     batch_size=10,
     shuffle=True,

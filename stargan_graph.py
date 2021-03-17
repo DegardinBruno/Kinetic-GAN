@@ -56,22 +56,22 @@ parser.add_argument("--residual_blocks", type=int, default=6, help="number of re
 parser.add_argument(
     "--train_path", 
     type=str, 
-    default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", 
+    default="/home/degardin/DATASETS/st-gcn/NTU/xview/train_data.npy", 
     help="path to train data")
 parser.add_argument(
     "--train_label_path", 
     type=str, 
-    default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", 
+    default="/home/degardin/DATASETS/st-gcn/NTU/xview/train_label.pkl", 
     help="path to label")
 parser.add_argument(
     "--val_path", 
     type=str, 
-    default="/home/degar/DATASETS/st-gcn/NTU/xview/val_data.npy", 
+    default="/home/degardin/DATASETS/st-gcn/NTU/xview/val_data.npy", 
     help="path to val data")
 parser.add_argument(
     "--val_label_path", 
     type=str, 
-    default="/home/degar/DATASETS/st-gcn/NTU/xview/val_label.pkl", 
+    default="/home/degardin/DATASETS/st-gcn/NTU/xview/val_label.pkl", 
     help="path to val label")
 parser.add_argument(
     "--selected_attrs",
@@ -79,7 +79,7 @@ parser.add_argument(
     nargs="+",
     type=int,
     help="selected attributes for the CelebA dataset",
-    default=[6, 7, 23, 26, 39],
+    default=[0, 1, 2, 3, 9, 10, 11, 27, 28, 29, 32],
 )
 parser.add_argument("--n_critic", type=int, default=5, help="number of training iterations for WGAN discriminator")
 opt = parser.parse_args()
@@ -126,7 +126,7 @@ optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt
 
 # Configure dataloaders
 dataloader = DataLoader(
-    dataset=Feeder(opt.train_path, opt.train_label_path, opt.selected_attrs),
+    dataset=Feeder(opt.train_path, opt.train_label_path, classes=opt.selected_attrs),
     batch_size=opt.batch_size,
     shuffle=True,
     num_workers=opt.n_cpu,
@@ -134,7 +134,7 @@ dataloader = DataLoader(
 )
 
 val_dataloader = DataLoader(
-    dataset=Feeder(opt.val_path, opt.val_label_path, opt.selected_attrs),
+    dataset=Feeder(opt.val_path, opt.val_label_path, classes=opt.selected_attrs),
     batch_size=10,
     shuffle=True,
     num_workers=1,
