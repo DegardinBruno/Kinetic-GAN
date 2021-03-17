@@ -41,7 +41,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--epoch", type=int, default=0, help="epoch to start training from")
 parser.add_argument("--n_epochs", type=int, default=200, help="number of epochs of training")
 parser.add_argument("--dataset_name", type=str, default="img_align_celeba", help="name of the dataset")
-parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
+parser.add_argument("--batch_size", type=int, default=32, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
@@ -113,7 +113,7 @@ train_transforms = [
 
 dataloader = DataLoader(
     CelebADataset(
-        "/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/celeba_faces/%s" % opt.dataset_name, transforms_=train_transforms, mode="train", attributes=opt.selected_attrs
+        "/home/degar/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=train_transforms, mode="train", attributes=opt.selected_attrs
     ),
     batch_size=opt.batch_size,
     shuffle=True,
@@ -128,7 +128,7 @@ val_transforms = [
 
 val_dataloader = DataLoader(
     CelebADataset(
-        "/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/celeba_faces/%s" % opt.dataset_name, transforms_=val_transforms, mode="val", attributes=opt.selected_attrs
+        "/home/degar/DATASETS/celeba_faces/%s" % opt.dataset_name, transforms_=val_transforms, mode="val", attributes=opt.selected_attrs
     ),
     batch_size=10,
     shuffle=True,

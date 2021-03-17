@@ -77,12 +77,12 @@ leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
 
-root_data = '/home/socialab/Desktop/PhD/Projects/Graph_GAN/images/0/0_0.npy'
+root_data = '/home/degar/PhD/Projects/Graph_GAN/images/4000.npy'
 data = np.load(root_data, mmap_mode='r')
 
 print(data.shape)
 
-data_numpy = np.transpose(data[1], (1, 2, 0))
+data_numpy = np.transpose(data[62], (1, 2, 0))
 data_numpy = rotation(data_numpy, 0,50)
 data_numpy = normal_skeleton(data_numpy)
 

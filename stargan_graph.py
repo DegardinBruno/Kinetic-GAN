@@ -41,7 +41,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--epoch", type=int, default=0, help="epoch to start training from")
 parser.add_argument("--n_epochs", type=int, default=200, help="number of epochs of training")
 parser.add_argument("--dataset_name", type=str, default="img_align_celeba", help="name of the dataset")
-parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
+parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
@@ -56,22 +56,22 @@ parser.add_argument("--residual_blocks", type=int, default=6, help="number of re
 parser.add_argument(
     "--train_path", 
     type=str, 
-    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", 
+    default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", 
     help="path to train data")
 parser.add_argument(
     "--train_label_path", 
     type=str, 
-    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", 
+    default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", 
     help="path to label")
 parser.add_argument(
     "--val_path", 
     type=str, 
-    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_data.npy", 
+    default="/home/degar/DATASETS/st-gcn/NTU/xview/val_data.npy", 
     help="path to val data")
 parser.add_argument(
     "--val_label_path", 
     type=str, 
-    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_label.pkl", 
+    default="/home/degar/DATASETS/st-gcn/NTU/xview/val_label.pkl", 
     help="path to val label")
 parser.add_argument(
     "--selected_attrs",

@@ -26,9 +26,11 @@ class Feeder(torch.utils.data.Dataset):
     def __init__(self,
                  data_path,
                  label_path,
+                 classes=None
                  mmap=True):
         self.data_path = data_path
         self.label_path = label_path
+        self.classes = classes # np.arange(0,60,1)
 
         self.load_data(mmap)
 
@@ -38,12 +40,18 @@ class Feeder(torch.utils.data.Dataset):
         # load label
         with open(self.label_path, 'rb') as f:
             self.sample_name, self.label = pickle.load(f)
+        self.label = np.array(self.label)
 
         # load data
         if mmap:
             self.data = np.load(self.data_path, mmap_mode='r')
         else:
             self.data = np.load(self.data_path)
+
+        if classes is not None:
+            self.label = self.label[np.where(np.isin(self.label, self.classes))]
+            self.label = np.nonzero(self.label[:, None] == self.classes)[1]
+            self.data  = self.data[np.where(np.isin(self.label, self.classes))]
 
         self.N, self.C, self.T, self.V, self.M = self.data.shape
 
@@ -54,5 +62,6 @@ class Feeder(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index])
         label = self.label[index]
+        
 
         return data_numpy, label
