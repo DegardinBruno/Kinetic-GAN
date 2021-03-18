@@ -27,7 +27,7 @@ Graph-Autoencoder adapted with NTU-RGB+D as input
 
 #### Train
 ```
-cd gans/graph-ae;
-python graph-ae.py 
+python graph-ae.py      # Train
+python graph-ae-eval.py # Evaluate
 ```
 ---------------------------------------

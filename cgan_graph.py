@@ -14,8 +14,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 from feeder.cgan_feeder import Feeder
+from utils.general import check_runs
 
-os.makedirs("images", exist_ok=True)
+out        = check_runs('cgan-graph')
+images_out = os.path.join(out, 'images')
+if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=400, help="number of epochs of training")
@@ -131,7 +134,7 @@ def sample_image(n_row, batches_done):
     labels = np.array([num for _ in range(n_row) for num in range(n_row)])
     labels = Variable(LongTensor(labels))
     gen_imgs = generator(z, labels)
-    with open(os.path.join("images", str(batches_done)+'.npy'), 'wb') as npf:
+    with open(os.path.join(images_out, str(batches_done)+'.npy'), 'wb') as npf:
         np.save(npf, gen_imgs.data.cpu())
 
 

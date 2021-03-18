@@ -30,7 +30,7 @@ class Feeder(torch.utils.data.Dataset):
                  mmap=True):
         self.data_path = data_path
         self.label_path = label_path
-        self.classes = np.array(classes)
+        self.classes = classes
         self.load_data(mmap)
 
     def load_data(self, mmap):

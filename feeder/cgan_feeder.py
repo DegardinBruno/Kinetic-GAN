@@ -61,7 +61,6 @@ class Feeder(torch.utils.data.Dataset):
     def __getitem__(self, index):
         # get data
         data_numpy = np.array(self.data[index])
-        print(data_numpy[:,0,:,0].T.shape)
         label = self.label[index]
         
 

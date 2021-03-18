@@ -29,13 +29,17 @@ import torch.autograd as autograd
 
 from utils.stargan_models import *
 from feeder.stargan_feeder import Feeder
+from utils.general import check_runs
 
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-os.makedirs("images", exist_ok=True)
-os.makedirs("saved_models", exist_ok=True)
+out        = check_runs('stargan-graph')
+models_out  = os.path.join(out, 'models')
+images_out = os.path.join(out, 'images')
+if not os.path.exists(models_out): os.makedirs(models_out)
+if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--epoch", type=int, default=0, help="epoch to start training from")
@@ -56,22 +60,22 @@ parser.add_argument("--residual_blocks", type=int, default=6, help="number of re
 parser.add_argument(
     "--train_path", 
     type=str, 
-    default="/home/degardin/DATASETS/st-gcn/NTU/xview/train_data.npy", 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", 
     help="path to train data")
 parser.add_argument(
     "--train_label_path", 
     type=str, 
-    default="/home/degardin/DATASETS/st-gcn/NTU/xview/train_label.pkl", 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", 
     help="path to label")
 parser.add_argument(
     "--val_path", 
     type=str, 
-    default="/home/degardin/DATASETS/st-gcn/NTU/xview/val_data.npy", 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_data.npy", 
     help="path to val data")
 parser.add_argument(
     "--val_label_path", 
     type=str, 
-    default="/home/degardin/DATASETS/st-gcn/NTU/xview/val_label.pkl", 
+    default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/val_label.pkl", 
     help="path to val label")
 parser.add_argument(
     "--selected_attrs",
@@ -115,8 +119,8 @@ if cuda:
 
 if opt.epoch != 0:
     # Load pretrained models
-    generator.load_state_dict(torch.load("saved_models/generator_%d.pth" % opt.epoch))
-    discriminator.load_state_dict(torch.load("saved_models/discriminator_%d.pth" % opt.epoch))
+    generator.load_state_dict(torch.load(os.path.join(models_out, "generator_%d.pth" % opt.epoch)))
+    discriminator.load_state_dict(torch.load(os.path.join(models_out, "discriminator_%d.pth" % epoch)))
 else:
     generator.apply(weights_init_normal)
     discriminator.apply(weights_init_normal)
@@ -183,8 +187,8 @@ def sample_images(batches_done):
     img_samples = None
 
 
-    if not os.path.exists('images/'+str(batches_done)):
-        os.makedirs('images/'+str(batches_done))
+    if not os.path.exists(os.path.join(images_out,str(batches_done))):
+        os.makedirs(os.path.join(images_out,str(batches_done)))
 
 
     for i in range(10):
@@ -202,7 +206,7 @@ def sample_images(batches_done):
         # Concatenate images by width
         img_sample = torch.cat((img.view(1,img.size(0),img.size(1),img.size(2)).data, gen_imgs), 0).cpu().detach().numpy()
         
-        with open(os.path.join('images/'+str(batches_done), str(batches_done)+'_'+str(i)+'.npy'), 'wb') as npf:
+        with open(os.path.join(images_out,str(batches_done), str(batches_done)+'_'+str(i)+'.npy'), 'wb') as npf:
             np.save(npf, img_sample)
 
 
@@ -306,5 +310,5 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
     if opt.checkpoint_interval != -1 and epoch % opt.checkpoint_interval == 0:
         # Save model checkpoints
-        torch.save(generator.state_dict(), "saved_models/generator_%d.pth" % epoch)
-        torch.save(discriminator.state_dict(), "saved_models/discriminator_%d.pth" % epoch)
+        torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % epoch))
+        torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % epoch))
