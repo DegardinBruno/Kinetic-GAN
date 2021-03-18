@@ -4,46 +4,27 @@ import networkx as nx
 import numpy as np
 import scipy.sparse as sp
 import torch
-from sklearn.metrics import roc_auc_score, average_precision_score
+from sklearn.metrics import roc_auc_score, average_precision_score, roc_curve
+from matplotlib import pyplot as plt
+from utils.general import *
 
 
-def load_data(dataset):
-    # load the data: x, tx, allx, graph
-    names = ['x', 'tx', 'allx', 'graph']
-    objects = []
-    for i in range(len(names)):
-        '''
-        fix Pickle incompatibility of numpy arrays between Python 2 and 3
-        https://stackoverflow.com/questions/11305790/pickle-incompatibility-of-numpy-arrays-between-python-2-and-3
-        '''
-        with open("data/ind.{}.{}".format(dataset, names[i]), 'rb') as rf:
-            u = pkl._Unpickler(rf)
-            u.encoding = 'latin1'
-            cur_data = u.load()
-            objects.append(cur_data)
-        # objects.append(
-        #     pkl.load(open("data/ind.{}.{}".format(dataset, names[i]), 'rb')))
-    x, tx, allx, graph = tuple(objects)
-    test_idx_reorder = parse_index_file(
-        "data/ind.{}.test.index".format(dataset))
-    test_idx_range = np.sort(test_idx_reorder)
+def load_data():
 
-    if dataset == 'citeseer':
-        # Fix citeseer dataset (there are some isolated nodes in the graph)
-        # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(
-            min(test_idx_reorder), max(test_idx_reorder) + 1)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range - min(test_idx_range), :] = tx
-        tx = tx_extended
+    num_node = 25
+    self_link = [(i, i) for i in range(num_node)]
+    neighbor_1base = [(1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
+                        (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
+                        (11, 10), (12, 11), (13, 1), (14, 13), (15, 14),
+                        (16, 15), (17, 1), (18, 17), (19, 18), (20, 19),
+                        (22, 23), (23, 8), (24, 25), (25, 12)]
+    neighbor_link = [(i - 1, j - 1) for (i, j) in neighbor_1base]
+    edge = self_link + neighbor_link
 
-    features = sp.vstack((allx, tx)).tolil()
-    features[test_idx_reorder, :] = features[test_idx_range, :]
-    features = torch.FloatTensor(np.array(features.todense()))
-    print(graph)
-    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
-
-    return adj, features
+    graph = nx.Graph(edge)
+    adj = nx.adjacency_matrix(graph)        
+    
+    return adj
 
 
 def parse_index_file(filename):
@@ -84,9 +65,9 @@ def mask_test_edges(adj):
     np.random.shuffle(all_edge_idx)
     val_edge_idx = all_edge_idx[:num_val]
     test_edge_idx = all_edge_idx[num_val:(num_val + num_test)]
-    test_edges = edges[test_edge_idx]
-    val_edges = edges[val_edge_idx]
-    train_edges = np.delete(edges, np.hstack([test_edge_idx, val_edge_idx]), axis=0)
+    test_edges = edges #[test_edge_idx]
+    val_edges = edges #[val_edge_idx]
+    train_edges = edges # np.delete(edges, np.hstack([test_edge_idx, val_edge_idx]), axis=0)
 
     def ismember(a, b, tol=5):
         rows_close = np.all(np.round(a - b[:, None], tol) == 0, axis=-1)
@@ -130,9 +111,9 @@ def mask_test_edges(adj):
 
     assert ~ismember(test_edges_false, edges_all)
     assert ~ismember(val_edges_false, edges_all)
-    assert ~ismember(val_edges, train_edges)
-    assert ~ismember(test_edges, train_edges)
-    assert ~ismember(val_edges, test_edges)
+    assert ismember(val_edges, train_edges)
+    assert ismember(test_edges, train_edges)
+    assert ismember(val_edges, test_edges)
 
     data = np.ones(train_edges.shape[0])
 
@@ -164,7 +145,7 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
     return torch.sparse.FloatTensor(indices, values, shape)
 
 
-def get_roc_score(emb, adj_orig, edges_pos, edges_neg):
+def get_roc_score(emb, adj_orig, edges_pos, edges_neg, saving=False):
     def sigmoid(x):
         return 1 / (1 + np.exp(-x))
 
@@ -186,5 +167,17 @@ def get_roc_score(emb, adj_orig, edges_pos, edges_neg):
     labels_all = np.hstack([np.ones(len(preds)), np.zeros(len(preds_neg))])
     roc_score = roc_auc_score(labels_all, preds_all)
     ap_score = average_precision_score(labels_all, preds_all)
+    fpr, tpr, thresholds = roc_curve(labels_all, preds_all)
+
+    if saving:
+        data = {'AUC': roc_score, 'fpr': fpr, 'tpr': tpr, 'thresholds': thresholds}
+        save('graph-ae', data, 'gae')
+
+        out = check_runs('graph-ae', -1)
+        plt.plot(fpr, tpr, color='#9E0B0F', linewidth=3.5)
+        plt.title('Graph Autoencoder - Human Skeleton')
+        plt.xlabel('False Positive Ratio')
+        plt.ylabel('True Positive Ratio')
+        plt.savefig(os.path.join(out,'gae.pdf'))
 
     return roc_score, ap_score

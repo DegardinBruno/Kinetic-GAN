@@ -30,7 +30,7 @@ class Feeder(torch.utils.data.Dataset):
                  mmap=True):
         self.data_path = data_path
         self.label_path = label_path
-        self.classes = classes # [0, 1, 2, 3, 9, 10, 11, 27, 28, 29, 32] # classes # np.arange(0,60,1)
+        self.classes = classes
 
         self.load_data(mmap)
 
@@ -60,9 +60,6 @@ class Feeder(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         # get data
-        data_numpy = np.array(self.data[index])
-        print(data_numpy[:,0,:,0].T.shape)
-        label = self.label[index]
-        
+        data_numpy = np.array(self.data[index])[:,0,:,0].T
 
-        return data_numpy, label
+        return data_numpy

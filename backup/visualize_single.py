@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np, os
 import cv2
 from PIL import ImageColor
 from matplotlib import pyplot as plt
@@ -28,11 +28,11 @@ def rotation(data, alpha=0, beta=0):
 
 def normal_skeleton(data):
     #  use as center joint
-    center_joint = data[0, :, 0, :]
+    center_joint = data[0, :]
 
-    center_jointx = np.mean(center_joint[:, 0])
-    center_jointy = np.mean(center_joint[:, 1])
-    center_jointz = np.mean(center_joint[:, 2])
+    center_jointx = center_joint[0]
+    center_jointy = center_joint[1]
+    center_jointz = center_joint[2]
 
     center = np.array([center_jointx, center_jointy, center_jointz])
     data = data - center
@@ -40,7 +40,7 @@ def normal_skeleton(data):
     return data
 
 
-                #   belly   chest    neck     head    lshoulder
+'''                #   belly   chest    neck     head    lshoulder
 neighbor_edge =   [(1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
                 # lupperarm lforearm lwrist rshoulder rupperarm
                     (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
@@ -65,53 +65,56 @@ color_edge =   [darkred1, darkred1, darkred2, darkred3, green,
                 lightblue3, blue, green, darkgreen, darkgreen1, 
                 orange, lightblue1, lightblue2, lightblue3, darkorange, 
                 orange, orange, darkorange, darkorange]
+'''
+
+if not os.path.isdir('synthetic'):
+    os.mkdir('synthetic')
 
 
+trunk_joints = [0, 1, 20, 2, 3]
+arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
+leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
+body = [trunk_joints, arm_joints, leg_joints]
 
 
-
-root_data = '/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xsub/val_data.npy'
+root_data = '/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy'
 data = np.load(root_data, mmap_mode='r')
 
+print(data.shape)
 
-data_numpy = np.transpose(data[0], (3, 1, 2, 0))
-data_numpy = normal_skeleton(data_numpy)
+data_numpy = np.transpose(data[100,:,0,:,0], (1, 0))
+data_numpy = rotation(data_numpy, 0,50)
+#data_numpy = normal_skeleton(data_numpy)
 
 
 print(data_numpy.shape)
-M, T, V, _ = data_numpy.shape
+V, _ = data_numpy.shape
 init_horizon=-45
 init_vertical=20
 
-for t in range(T):
-    fig = plt.figure()
-    ax = Axes3D(fig)
 
-    ax.view_init(init_vertical, init_horizon)
-    m=0
+fig = plt.figure()
+ax = Axes3D(fig)
+
+ax.view_init(init_vertical, init_horizon)
+
+ax.set_xlim3d([-1, 1])
+ax.set_ylim3d([-1, 1])
+ax.set_zlim3d([0, 1.8])
+
+x = data_numpy[:, 0]
+y = data_numpy[:, 1]
+z = data_numpy[:, 2]
+
+for part in body:
+    x_plot = x[part]
+    y_plot = y[part]
+    z_plot = z[part]
+    ax.plot(x_plot, z_plot, y_plot, color='b', marker='o', markerfacecolor='r')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
 
 
-    minx, maxx, miny, maxy = data_numpy[m, :, :, 0].min(), data_numpy[m, :, :, 0].max(), data_numpy[m, :, :, 1].min(),  data_numpy[m, :, :, 1].max()
-    print(minx, maxx)
-    ax.set_xlim3d([minx+0.5, maxx+0.4])
-    ax.set_ylim3d([miny+0.5, maxy+0.5])
-    ax.set_zlim3d([0, 1.8])
-
-    for color, (i, j) in enumerate(neighbor_edge):
-        xi = data_numpy[t, i-1, 0]
-        yi = data_numpy[t, i-1, 1]
-        zi = data_numpy[t, i-1, 2]
-        xj = data_numpy[t, j-1, 0]
-        yj = data_numpy[t, j-1, 1]
-        zj = data_numpy[t, j-1, 2]
-        if xi + yi + zi == 0 or xj + yj + zj == 0:
-            break
-        
-        ax.plot([xi, xj],
-                [zi, zj],
-                [yi, yj],
-                color=color_edge[color], linestyle='-', linewidth=2)
-    
-
-    fig.savefig("visualization/zau_"+str(t)+".png")
-    fig.clf()
+plt.savefig("synthetic/zau.png")

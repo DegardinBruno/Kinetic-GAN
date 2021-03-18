@@ -31,6 +31,8 @@ def gae_for(args):
     adj, features = load_data(args.dataset_str)
     n_nodes, feat_dim = features.shape
 
+    print(features.shape)
+
     # Store original adjacency matrix (without diagonal entries) for later
     adj_orig = adj
     adj_orig = adj_orig - sp.dia_matrix((adj_orig.diagonal()[np.newaxis, :], [0]), shape=adj_orig.shape)
@@ -38,6 +40,7 @@ def gae_for(args):
 
     adj_train, train_edges, val_edges, val_edges_false, test_edges, test_edges_false = mask_test_edges(adj)
     adj = adj_train
+
 
     # Some preprocessing
     adj_norm = preprocess_graph(adj)
@@ -71,6 +74,8 @@ def gae_for(args):
               "val_ap=", "{:.5f}".format(ap_curr),
               "time=", "{:.5f}".format(time.time() - t)
               )
+
+        torch.save(model.state_dict(), 'models/graph-ae_'+str(epoch)+'.pt')
 
     print("Optimization Finished!")
 
