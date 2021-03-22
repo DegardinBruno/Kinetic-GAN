@@ -2,7 +2,7 @@
 Code for the paper "Generative Adversarial Graph Convolutional Networks to Synthesize Human Actions"
 
 
---------------------------
+---
 ### GAN - Skeleton Input
 Original GAN adapted with NTU-RGB+D as input
 
