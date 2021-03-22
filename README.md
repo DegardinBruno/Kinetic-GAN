@@ -12,6 +12,15 @@ python gan_graph.py --data_path path_train_data --label_path path_train_labels
 ```
 
 ---
+### dc-GAN
+Deep Convolutional GAN adapted with NTU-RGB+D as input
+
+#### Train
+```
+python dcgan-graph.py --data_path path_train_data --label_path path_train_labels
+```
+
+---
 ### cGAN
 Conditional-GAN adapted with NTU-RGB+D as input
 
