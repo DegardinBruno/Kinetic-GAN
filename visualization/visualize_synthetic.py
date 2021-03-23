@@ -1,8 +1,17 @@
+import sys
+sys.path.append(".")
+
+
 import numpy as np, os
 import cv2
 from PIL import ImageColor
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from utils.general import check_runs
+
+
+out        = check_runs('synthetic')
+if not os.path.exists(out): os.makedirs(out)
 
 def rotation(data, alpha=0, beta=0):
         # rotate the skeleton around x-y axis
@@ -40,49 +49,19 @@ def normal_skeleton(data):
     return data
 
 
-'''                #   belly   chest    neck     head    lshoulder
-neighbor_edge =   [(1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
-                # lupperarm lforearm lwrist rshoulder rupperarm
-                    (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
-                #   rforearm  rwrist    lhip     lfemur    ltibia 
-                    (11, 10), (12, 11), (13, 1), (14, 13), (15, 14),
-                #   lfoot     rhip     rfemur    rtibia    rfoot
-                    (16, 15), (17, 1), (18, 17), (19, 18), (20, 19),
-                #   lfinger   lhand    rfinger   rhand 
-                    (22, 23), (23, 8), (24, 25), (25, 12)]
-
-darkred1, darkred2, darkred3 = '#7e0008', '#580005', '#320003'
-green, darkgreen, darkgreen1, darkgreen2 = '#17695b', '#125a58', '#103f49', '#183449'
-lightblue1, lightblue2, lightblue3, blue = '#b6d5eb', '#7fbadc', '#54a5d5', '#3892c6'
-orange, darkorange = '#f79a39', '#e64242'
-
-#honey, darkgreen = '#FCBF5D', '#007e3d', 
-#red, blue, orange, green, darkblue = '#FD0010', '#00B2EE', '#FF631C', '#00FD7B', '#0C68F5'
-
-
-color_edge =   [darkred1, darkred1, darkred2, darkred3, green, 
-                darkgreen, darkgreen1, darkgreen2, lightblue1, lightblue2, 
-                lightblue3, blue, green, darkgreen, darkgreen1, 
-                orange, lightblue1, lightblue2, lightblue3, darkorange, 
-                orange, orange, darkorange, darkorange]
-'''
-
-if not os.path.isdir('synthetic'):
-    os.mkdir('synthetic')
-
-
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
 leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
 
-root_data = '/home/degar/PhD/Projects/Graph_GAN/images/4000.npy'
+root_data = '/home/socialab/Desktop/PhD/Projects/Graph_GAN/runs/dcgan-graph/exp3/images/2000.npy'
 data = np.load(root_data, mmap_mode='r')
 
 print(data.shape)
 
-data_numpy = np.transpose(data[62], (1, 2, 0))
+
+data_numpy = np.transpose(data[1,:,:,:25], (1, 2, 0))
 data_numpy = rotation(data_numpy, 0,50)
 data_numpy = normal_skeleton(data_numpy)
 
@@ -98,7 +77,7 @@ ax = Axes3D(fig)
 
 ax.view_init(init_vertical, init_horizon)
 
-for frame_idx in range(data_numpy.shape[1]):
+for frame_idx in range(data_numpy.shape[0]):
 
     plt.cla()
     plt.title("Frame: {}".format(frame_idx))
@@ -125,7 +104,7 @@ for frame_idx in range(data_numpy.shape[1]):
     ax.set_zlabel('Z')
 
     
-    plt.savefig("synthetic/zau_"+str(frame_idx)+".png")
+    plt.savefig(os.path.join(out,"zau_"+str(frame_idx)+".png"))
     print("The {} frame 3d skeleton......".format(frame_idx))
 
     ax.set_facecolor('none')

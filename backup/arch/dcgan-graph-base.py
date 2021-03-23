@@ -22,16 +22,17 @@ if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=200, help="number of epochs of training")
-parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
+parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
-parser.add_argument("--latent_dim", type=int, default=128, help="dimensionality of the latent space")
-parser.add_argument("--img_size", type=int, default=32, help="size of each image dimension")
+parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
+parser.add_argument("--img_width", type=int, default=26, help="size of each image dimension")
+parser.add_argument("--img_height", type=int, default=300, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
-parser.add_argument("--d_interval", type=int, default=500, help="interval of interation for discriminator")
-parser.add_argument("--sample_interval", type=int, default=500, help="interval between image sampling")
+parser.add_argument("--d_interval", type=int, default=1000, help="interval of interation for discriminator")
+parser.add_argument("--sample_interval", type=int, default=4000, help="interval between image sampling")
 parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", help="path to data")
 parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
@@ -53,8 +54,9 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
 
-        self.init_size = opt.img_size // 4
-        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_size ** 2))
+        self.init_width = opt.img_width // 4
+        self.init_height = opt.img_height // 4
+        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_height * self.init_width))
 
         self.conv_blocks = nn.Sequential(
             nn.BatchNorm2d(128),
@@ -63,7 +65,7 @@ class Generator(nn.Module):
             nn.BatchNorm2d(128, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 64, 3, stride=1, padding=1),
+            nn.Conv2d(128, 64, 3, stride=1, padding=(1,2)),
             nn.BatchNorm2d(64, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, opt.channels, 3, stride=1, padding=1),
@@ -72,7 +74,7 @@ class Generator(nn.Module):
 
     def forward(self, z):
         out = self.l1(z)
-        out = out.view(out.shape[0], 128, self.init_size, self.init_size)
+        out = out.view(out.shape[0], 128, self.init_height, self.init_width)
         img = self.conv_blocks(out)
         return img
 
@@ -95,8 +97,9 @@ class Discriminator(nn.Module):
         )
 
         # The height and width of downsampled image
-        ds_size = opt.img_size // 2 ** 4
-        self.adv_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, 1), nn.Sigmoid())
+        ds_width = opt.img_width // 2 ** 4 + 1
+        ds_height = opt.img_height // 2 ** 4 + 1
+        self.adv_layer = nn.Sequential(nn.Linear(128 * ds_width * ds_height, 1), nn.Sigmoid())
 
     def forward(self, img):
         out = self.model(img)
@@ -147,13 +150,13 @@ def sample_image(gen_imgs, out_path):
 #  Training
 # ----------
 
-zpad = nn.ZeroPad2d((0,7,0,0))
+zpad = nn.ZeroPad2d((0,1,0,0))
 
 for epoch in range(opt.n_epochs):
     for i, (imgs, _) in enumerate(dataloader):
         batches_done = epoch * len(dataloader) + i
 
-        imgs = imgs[:,:,:opt.img_size,:,0]
+        imgs = imgs[:,:,:,:,0]
 
 
         # Adversarial ground truths
