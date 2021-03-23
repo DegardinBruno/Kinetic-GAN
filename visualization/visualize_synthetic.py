@@ -1,12 +1,12 @@
-import sys
-sys.path.append(".")
-
-
+import sys, argparse
 import numpy as np, os
 import cv2
 from PIL import ImageColor
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+
+sys.path.append(".")
+
 from utils.general import check_runs
 
 
@@ -55,18 +55,22 @@ leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
 
-root_data = '/home/socialab/Desktop/PhD/Projects/Graph_GAN/runs/dcgan-graph/exp3/images/2000.npy'
-data = np.load(root_data, mmap_mode='r')
+parser = argparse.ArgumentParser()
+parser.add_argument("--path", type=str, help="Path to generated samples")
+parser.add_argument("--index_sample", type=int, default=-1, help="Sample's index")
+parser.add_argument("--pad_limit", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
+opt = parser.parse_args()
+print(opt)
 
-print(data.shape)
+data = np.load(opt.path, mmap_mode='r')
 
+print('Data shape', data.shape)
 
-data_numpy = np.transpose(data[1,:,:,:25], (1, 2, 0))
+data_numpy = np.transpose(data[opt.index_sample,:,:,:opt.pad_limit], (1, 2, 0))
 data_numpy = rotation(data_numpy, 0,50)
 data_numpy = normal_skeleton(data_numpy)
 
 
-print(data_numpy.shape)
 T, V, _ = data_numpy.shape
 init_horizon=-45
 init_vertical=20
