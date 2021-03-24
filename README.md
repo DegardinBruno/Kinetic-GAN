@@ -3,15 +3,6 @@ Code for the paper "Generative Adversarial Graph Convolutional Networks to Synth
 
 
 ---
-### GAN
-Original GAN adapted with NTU-RGB+D as input
-
-#### Train
-```
-python gan_graph.py --data_path path_train_data --label_path path_train_labels
-```
-
-#
 ### dc-GAN
 Deep Convolutional GAN adapted with NTU-RGB+D as input
 
@@ -49,3 +40,11 @@ python graph-ae.py      # Train
 python graph-ae-eval.py # Evaluate
 ```
 ---
+
+### Visualization
+Visualization of synthetic samples
+
+```
+python visualization/synthetic.py --path path_samples --index_sample 1 --pad_limit 25  # Sample's index and Re-adjust padding limit from joints
+```
+
