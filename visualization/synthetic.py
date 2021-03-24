@@ -8,6 +8,8 @@ from mpl_toolkits.mplot3d import Axes3D
 sys.path.append(".")
 
 from utils.general import check_runs
+from feeder.cgan_feeder import Feeder
+
 
 
 out        = check_runs('synthetic')
@@ -55,10 +57,13 @@ leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
 
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
 parser.add_argument("--index_sample", type=int, default=-1, help="Sample's index")
-parser.add_argument("--pad_limit", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
+parser.add_argument("--time", type=int, default=32, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
+parser.add_argument("--joints", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
 opt = parser.parse_args()
 print(opt)
 
@@ -66,9 +71,14 @@ data = np.load(opt.path, mmap_mode='r')
 
 print('Data shape', data.shape)
 
-data_numpy = np.transpose(data[opt.index_sample,:,:,:opt.pad_limit], (1, 2, 0))
+data_numpy = np.transpose(data[opt.index_sample,:,:opt.time,:opt.joints], (1, 2, 0))
+#data_numpy = cv2.normalize(data_numpy, None, alpha=dataset.min, beta=dataset.max, norm_type = cv2.NORM_MINMAX)
 data_numpy = rotation(data_numpy, 0,50)
 data_numpy = normal_skeleton(data_numpy)
+
+print(data_numpy.shape)
+print(data_numpy.max())
+print(data_numpy.min())
 
 
 T, V, _ = data_numpy.shape
@@ -86,16 +96,14 @@ for frame_idx in range(data_numpy.shape[0]):
     plt.cla()
     plt.title("Frame: {}".format(frame_idx))
 
-    ax.set_xlim3d([-1, 1])
-    ax.set_ylim3d([-1, 1])
-    ax.set_zlim3d([0, 1.8])
+    ax.set_xlim3d([-0.3, 0.3])
+    ax.set_ylim3d([-0.3, 0.3])
+    ax.set_zlim3d([0, 0.5])
 
     x = data_numpy[frame_idx, :, 0]
     y = data_numpy[frame_idx, :, 1]
     z = data_numpy[frame_idx, :, 2]
 
-    if x[0] == x[1] == x[2]:
-        break
 
     for part in body:
         x_plot = x[part]

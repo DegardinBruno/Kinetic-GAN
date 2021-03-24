@@ -1,5 +1,5 @@
 import argparse
-import os
+import os, sys
 import numpy as np
 import math
 
@@ -14,7 +14,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-os.makedirs("images", exist_ok=True)
+sys.path.append(".")
+
+from utils.general import check_runs
+
+out        = check_runs('dcgan-mnist')
+images_out = os.path.join(out, 'images')
+if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=200, help="number of epochs of training")
@@ -189,4 +195,4 @@ for epoch in range(opt.n_epochs):
 
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
-            save_image(gen_imgs.data[:25], "images/%d.png" % batches_done, nrow=5, normalize=True)
+            save_image(gen_imgs.data[:25], os.path.join(images_out,"%d.png") % batches_done, nrow=5, normalize=True)

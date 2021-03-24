@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torchvision import datasets, transforms
+from PIL import Image
 
 # visualization
 import time
@@ -28,11 +29,11 @@ class Feeder(torch.utils.data.Dataset):
                  label_path,
                  classes=None,
                  mmap=True):
-        self.data_path = data_path
+        self.data_path  = data_path
         self.label_path = label_path
-        self.classes = [0, 1, 2, 3, 9, 10, 11, 27, 28, 29, 32] 
-
+        self.classes    = classes
         self.load_data(mmap)
+
 
     def load_data(self, mmap):
         # data: N C V T M
@@ -54,13 +55,15 @@ class Feeder(torch.utils.data.Dataset):
             self.label = np.nonzero(tmp[:, None] == self.classes)[1]
 
         self.N, self.C, self.T, self.V, self.M = self.data.shape
+        self.max, self.min = self.data.max(), self.data.min()
 
     def __len__(self):
         return len(self.label)
 
     def __getitem__(self, index):
         # get data
-        data_numpy = np.array(self.data[index])
+        data_numpy = np.array(self.data[index,:,:,:,0])
+        data_numpy = 2 * ((data_numpy-self.min)/(self.max - self.min)) - 1
         label = self.label[index]
         
 
