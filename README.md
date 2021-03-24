@@ -45,6 +45,6 @@ python graph-ae-eval.py # Evaluate
 Visualization of synthetic samples
 
 ```
-python visualization/synthetic.py --path path_samples --index_sample 1 --pad_limit 25  # Sample's index and Re-adjust padding limit from joints
+python visualization/synthetic.py --path path_samples --index_sample 1 --joints 25  # Sample's index and Re-adjust padding limit from joints
 ```
 
