@@ -8,12 +8,12 @@ def humanSort(text):  # Sort function for strings w/ numbers
     return sorted(text, key=arrayKey)
 
 
-root = '/home/socialab/Desktop/PhD/Projects/Graph_GAN/runs/synthetic/exp20-save'
+root = 'runs/synthetic/exp4'
 images = [img for img in humanSort(os.listdir(root)) if img.endswith(".png")]
 frame = cv2.imread(os.path.join(root, images[0]))
 height, width, layers = frame.shape
 print(height, width)
-video = cv2.VideoWriter("synthetic_sitdown.mp4", cv2.VideoWriter_fourcc(*'mp4v'),  30 , (width,height))
+video = cv2.VideoWriter("videos/synthetic_jump.mp4", cv2.VideoWriter_fourcc(*'mp4v'),  30 , (width,height))
 
 full = len(images)
 for i, image in enumerate(images):

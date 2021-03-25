@@ -17,7 +17,9 @@ from feeder.cgan_feeder import Feeder
 from utils.general import check_runs
 
 out        = check_runs('cgan-graph')
+models_out  = os.path.join(out, 'models')
 images_out = os.path.join(out, 'images')
+if not os.path.exists(models_out): os.makedirs(models_out)
 if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
@@ -32,12 +34,13 @@ parser.add_argument("--n_classes", type=int, default=60, help="number of classes
 parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=2000, help="interval between image sampling")
-parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", help="path to label")
+parser.add_argument("--checkpoint_interval", type=int, default=8000, help="interval between image sampling")
+parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
-img_shape = (opt.channels, 300, opt.img_size)
+img_shape = (opt.channels, 64, opt.img_size)
 
 cuda = True if torch.cuda.is_available() else False
 print(cuda)
@@ -145,7 +148,7 @@ def sample_image(n_row, batches_done):
 for epoch in range(opt.n_epochs):
     for i, (imgs, labels) in enumerate(dataloader):
         
-        imgs = imgs[:,:,:,:,0]
+        imgs = imgs[:,:,:64,:]
 
         batch_size = imgs.shape[0]
 
@@ -205,3 +208,8 @@ for epoch in range(opt.n_epochs):
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
             sample_image(n_row=60, batches_done=batches_done)
+        
+        if opt.checkpoint_interval != -1 and batches_done % opt.checkpoint_interval == 0:
+            # Save model checkpoints
+            torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % epoch))
+            torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % epoch))

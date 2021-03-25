@@ -62,7 +62,7 @@ body = [trunk_joints, arm_joints, leg_joints]
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
 parser.add_argument("--index_sample", type=int, default=-1, help="Sample's index")
-parser.add_argument("--time", type=int, default=32, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
+parser.add_argument("--time", type=int, default=64, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
 parser.add_argument("--joints", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
 opt = parser.parse_args()
 print(opt)
