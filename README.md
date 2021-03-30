@@ -42,9 +42,10 @@ python graph-ae-eval.py # Evaluate
 ---
 
 ### Visualization
-Visualization of synthetic samples
+Visualization of synthetic samples. Check [NTU-RGB+D](http://rose1.ntu.edu.sg/datasets/actionrecognition.asp) dataset labels (index=label-1).
+Generator synthesizes 60 samples from the 60 classes. Classes are repeated at every 60 samples, check "jump up" example below.
 
 ```
-python visualization/synthetic.py --path path_samples --index_sample 1 --joints 25  # Sample's index and Re-adjust padding limit from joints
+python visualization/synthetic.py --path path_samples --index_sample 26 86 146 # Multiple samples indexes read as a list
 ```
 
