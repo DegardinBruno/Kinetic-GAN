@@ -46,7 +46,7 @@ Visualization of synthetic samples. Check [NTU-RGB+D](http://rose1.ntu.edu.sg/da
 Generator synthesizes 60 samples from the 60 classes. Classes are repeated at every 60 samples, check "jump up" example below.
 
 ```
-python visualization/synthetic.py --path path_samples --index_sample 26 86 146  # Multiple samples indexes read as a list
+python visualization/synthetic.py --path path_samples --index_sample 26 86 146  # Multiple samples indexes (Max 3) 
 ```
 
 Check current loss.
