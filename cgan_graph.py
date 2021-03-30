@@ -14,16 +14,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 from feeder.cgan_feeder import Feeder
-from utils.general import check_runs
+from utils import general
 
-out        = check_runs('cgan-graph')
+out        = general.check_runs('cgan-graph')
 models_out  = os.path.join(out, 'models')
 images_out = os.path.join(out, 'images')
 if not os.path.exists(models_out): os.makedirs(models_out)
 if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--n_epochs", type=int, default=400, help="number of epochs of training")
+parser.add_argument("--n_epochs", type=int, default=1000, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
@@ -33,8 +33,9 @@ parser.add_argument("--latent_dim", type=int, default=128, help="dimensionality 
 parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
 parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
-parser.add_argument("--sample_interval", type=int, default=2000, help="interval between image sampling")
-parser.add_argument("--checkpoint_interval", type=int, default=8000, help="interval between image sampling")
+parser.add_argument("--sample_interval", type=int, default=10000, help="interval between image sampling")
+parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between image sampling")
+parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
 parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
 parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
@@ -141,12 +142,33 @@ def sample_image(n_row, batches_done):
         np.save(npf, gen_imgs.data.cpu())
 
 
+def generate_sequence(path_model, label):
+    generator.load_state_dict(torch.load(path_model))
+
+    z = Variable(FloatTensor(np.random.normal(0, 1, (10**2, opt.latent_dim))))
+    labels = np.array([label for _ in range(10) for num in range(10)])
+    labels = Variable(LongTensor(labels))
+    print(z.shape)
+    print(labels.shape)
+    gen_imgs = generator(z, labels)
+    with open(os.path.join(images_out, str(label)+'.npy'), 'wb') as npf:
+        np.save(npf, gen_imgs.data.cpu())
+
+
+
+#generate_sequence('runs/cgan-graph/exp2/models/generator_397.pth', 26)
+
 # ----------
 #  Training
 # ----------
 
+
+loss_d = []
+loss_g = []
+
 for epoch in range(opt.n_epochs):
     for i, (imgs, labels) in enumerate(dataloader):
+        batches_done = epoch * len(dataloader) + i
         
         imgs = imgs[:,:,:64,:]
 
@@ -183,33 +205,43 @@ for epoch in range(opt.n_epochs):
         # ---------------------
         #  Train Discriminator
         # ---------------------
+        if batches_done % opt.d_interval == 0:
+            optimizer_D.zero_grad()
 
-        optimizer_D.zero_grad()
+            # Loss for real images
+            validity_real = discriminator(real_imgs, labels)
+            d_real_loss = adversarial_loss(validity_real, valid)
 
-        # Loss for real images
-        validity_real = discriminator(real_imgs, labels)
-        d_real_loss = adversarial_loss(validity_real, valid)
+            # Loss for fake images
+            validity_fake = discriminator(gen_imgs.detach(), gen_labels)
+            d_fake_loss = adversarial_loss(validity_fake, fake)
 
-        # Loss for fake images
-        validity_fake = discriminator(gen_imgs.detach(), gen_labels)
-        d_fake_loss = adversarial_loss(validity_fake, fake)
+            # Total discriminator loss
+            d_loss = (d_real_loss + d_fake_loss) / 2
 
-        # Total discriminator loss
-        d_loss = (d_real_loss + d_fake_loss) / 2
-
-        d_loss.backward()
-        optimizer_D.step()
+            d_loss.backward()
+            optimizer_D.step()
 
         print(
             "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
             % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
         )
 
-        batches_done = epoch * len(dataloader) + i
+        loss_d.append(d_loss.data.cpu())
+        loss_g.append(g_loss.data.cpu())
+
         if batches_done % opt.sample_interval == 0:
             sample_image(n_row=60, batches_done=batches_done)
+
+            general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
         
         if opt.checkpoint_interval != -1 and batches_done % opt.checkpoint_interval == 0:
             # Save model checkpoints
-            torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % epoch))
-            torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % epoch))
+            torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % batches_done))
+            torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % batches_done))
+
+loss_d = np.array(loss_d)
+loss_g = np.array(loss_g)
+
+general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+

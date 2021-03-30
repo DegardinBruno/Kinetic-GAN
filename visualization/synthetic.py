@@ -61,7 +61,7 @@ body = [trunk_joints, arm_joints, leg_joints]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
-parser.add_argument("--index_sample", type=int, default=-1, help="Sample's index")
+parser.add_argument("--index_sample", nargs='+', type=int, default=-1, help="Sample's index")
 parser.add_argument("--time", type=int, default=64, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
 parser.add_argument("--joints", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
 opt = parser.parse_args()
@@ -71,17 +71,17 @@ data = np.load(opt.path, mmap_mode='r')
 
 print('Data shape', data.shape)
 
-data_numpy = np.transpose(data[opt.index_sample,:,:opt.time,:opt.joints], (1, 2, 0))
+data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints], (1, 2, 0)) for index in opt.index_sample])
 #data_numpy = cv2.normalize(data_numpy, None, alpha=dataset.min, beta=dataset.max, norm_type = cv2.NORM_MINMAX)
-data_numpy = rotation(data_numpy, 0,50)
-data_numpy = normal_skeleton(data_numpy)
+data_numpy = np.array([rotation(d, 0,50) for d in data_numpy])
+data_numpy = np.array([normal_skeleton(d) for d in data_numpy])
 
 print(data_numpy.shape)
 print(data_numpy.max())
 print(data_numpy.min())
 
 
-T, V, _ = data_numpy.shape
+I, T, V, _ = data_numpy.shape
 init_horizon=-45
 init_vertical=20
 
@@ -91,31 +91,40 @@ ax = Axes3D(fig)
 
 ax.view_init(init_vertical, init_horizon)
 
-for frame_idx in range(data_numpy.shape[0]):
+data_numpy[1,:,:,2] = data_numpy[1,:,:,2]+0.35
+data_numpy[2,:,:,0] = data_numpy[2,:,:,0]-0.4
 
+print(data_numpy.shape)
+
+for frame_idx in range(data_numpy.shape[1]):
     plt.cla()
-    plt.title("Frame: {}".format(frame_idx))
+    ax.set_title("Frame: {}".format(frame_idx))
+
 
     ax.set_xlim3d([-0.3, 0.3])
     ax.set_ylim3d([-0.3, 0.3])
     ax.set_zlim3d([0, 0.5])
-
-    x = data_numpy[frame_idx, :, 0]
-    y = data_numpy[frame_idx, :, 1]
-    z = data_numpy[frame_idx, :, 2]
-
-
-    for part in body:
-        x_plot = x[part]
-        y_plot = y[part]
-        z_plot = z[part]
-        ax.plot(x_plot, z_plot, y_plot, color='b', marker='o', markerfacecolor='r')
-
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-
     
+    for data in data_numpy:
+
+
+
+        x = data[frame_idx, :, 0]
+        z = data[frame_idx, :, 1]
+        y = data[frame_idx, :, 2]
+
+
+        for part in body:
+            x_plot = x[part]
+            y_plot = y[part]
+            z_plot = z[part]
+            ax.plot(x_plot, y_plot, z_plot, color='b', marker='o', markerfacecolor='r')
+
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+
+        
     plt.savefig(os.path.join(out,"zau_"+str(frame_idx)+".png"))
     print("The {} frame 3d skeleton......".format(frame_idx))
 
