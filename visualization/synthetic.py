@@ -104,7 +104,7 @@ for frame_idx in range(data_numpy.shape[1]):
     ax.set_xlim3d([-0.3, 0.3])
     ax.set_ylim3d([-0.3, 0.3])
     ax.set_zlim3d([0, 0.5])
-    
+
     for data in data_numpy:
 
 
