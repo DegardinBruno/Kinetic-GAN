@@ -16,7 +16,7 @@ import torch
 from feeder.cgan_feeder import Feeder
 from utils import general
 
-out        = general.check_runs('cgan-graph')
+out        = general.check_runs('wcgan-graph')
 models_out  = os.path.join(out, 'models')
 images_out = os.path.join(out, 'images')
 if not os.path.exists(models_out): os.makedirs(models_out)
@@ -38,6 +38,7 @@ parser.add_argument("--checkpoint_interval", type=int, default=10000, help="inte
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
 parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
 parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
+parser.add_argument("--clip_value", type=float, default=0.01, help="lower and upper clip value for disc. weights")
 opt = parser.parse_args()
 print(opt)
 
@@ -123,8 +124,8 @@ dataloader = torch.utils.data.DataLoader(
 )
 
 # Optimizers
-optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
-optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
+optimizer_G = torch.optim.RMSprop(generator.parameters(), lr=opt.lr)
+optimizer_D = torch.optim.RMSprop(discriminator.parameters(), lr=opt.lr)
 
 FloatTensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
@@ -175,12 +176,35 @@ for epoch in range(opt.n_epochs):
         batch_size = imgs.shape[0]
 
         # Adversarial ground truths
-        valid = Variable(FloatTensor(batch_size, 1).fill_(1.0), requires_grad=False)
-        fake = Variable(FloatTensor(batch_size, 1).fill_(0.0), requires_grad=False)
+        #valid = Variable(FloatTensor(batch_size, 1).fill_(1.0), requires_grad=False)
+        #fake = Variable(FloatTensor(batch_size, 1).fill_(0.0), requires_grad=False)
 
         # Configure input
         real_imgs = Variable(imgs.type(FloatTensor))
         labels = Variable(labels.type(LongTensor))
+        
+        # ---------------------
+        #  Train Discriminator
+        # ---------------------
+        if batches_done % opt.d_interval == 0:
+            optimizer_D.zero_grad()
+
+            # Sample noise and labels as generator input
+            z = Variable(FloatTensor(np.random.normal(0, 1, (batch_size, opt.latent_dim))))
+            gen_labels = Variable(LongTensor(np.random.randint(0, opt.n_classes, batch_size)))
+
+            # Generate a batch of images
+            fake_imgs = generator(z, gen_labels).detach()
+
+            # Total discriminator loss
+            d_loss = -torch.mean(discriminator(real_imgs, labels)) + torch.mean(discriminator(fake_imgs, gen_labels))
+
+            d_loss.backward()
+            optimizer_D.step()
+
+            # Clip weights of discriminator
+            for p in discriminator.parameters():
+                p.data.clamp_(-opt.clip_value, opt.clip_value)
 
         # -----------------
         #  Train Generator
@@ -188,39 +212,14 @@ for epoch in range(opt.n_epochs):
 
         optimizer_G.zero_grad()
 
-        # Sample noise and labels as generator input
-        z = Variable(FloatTensor(np.random.normal(0, 1, (batch_size, opt.latent_dim))))
-        gen_labels = Variable(LongTensor(np.random.randint(0, opt.n_classes, batch_size)))
-
         # Generate a batch of images
         gen_imgs = generator(z, gen_labels)
 
         # Loss measures generator's ability to fool the discriminator
-        validity = discriminator(gen_imgs, gen_labels)
-        g_loss = adversarial_loss(validity, valid)
+        g_loss = -torch.mean(discriminator(gen_imgs, gen_labels))
 
         g_loss.backward()
         optimizer_G.step()
-
-        # ---------------------
-        #  Train Discriminator
-        # ---------------------
-        if batches_done % opt.d_interval == 0:
-            optimizer_D.zero_grad()
-
-            # Loss for real images
-            validity_real = discriminator(real_imgs, labels)
-            d_real_loss = adversarial_loss(validity_real, valid)
-
-            # Loss for fake images
-            validity_fake = discriminator(gen_imgs.detach(), gen_labels)
-            d_fake_loss = adversarial_loss(validity_fake, fake)
-
-            # Total discriminator loss
-            d_loss = (d_real_loss + d_fake_loss) / 2
-
-            d_loss.backward()
-            optimizer_D.step()
 
         print(
             "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
@@ -231,9 +230,9 @@ for epoch in range(opt.n_epochs):
         loss_g.append(g_loss.data.cpu())
 
         if batches_done % opt.sample_interval == 0:
-            sample_image(n_row=120, batches_done=batches_done)
+            sample_image(n_row=60, batches_done=batches_done)
 
-            general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+            general.save('wcgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
         
         if opt.checkpoint_interval != -1 and batches_done % opt.checkpoint_interval == 0:
             # Save model checkpoints
@@ -243,5 +242,5 @@ for epoch in range(opt.n_epochs):
 loss_d = np.array(loss_d)
 loss_g = np.array(loss_g)
 
-general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+general.save('wcgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
 

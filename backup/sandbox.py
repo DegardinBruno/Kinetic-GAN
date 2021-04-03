@@ -2,6 +2,7 @@ import numpy as np
 import os, re, random
 import pickle
 import torch
+import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 import networkx as nx
@@ -12,11 +13,6 @@ from feeder.cgan_feeder import Feeder
 
 
 
-
-dataset = Feeder('/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy', '/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl')
-
-
-print(np.arange(60))
-
-
-print(dataset.N)
+bn = nn.BatchNorm1d(64, 0.8)
+print(bn.eps)
+print(bn.momentum)
