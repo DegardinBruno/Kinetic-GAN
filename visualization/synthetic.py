@@ -67,6 +67,10 @@ parser.add_argument("--joints", type=int, default=25, help="Re-adjust padding li
 opt = parser.parse_args()
 print(opt)
 
+config_file = open(os.path.join(out,"config.txt"),"w")
+config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
+config_file.close()
+
 data = np.load(opt.path, mmap_mode='r')
 
 print('Data shape', data.shape)

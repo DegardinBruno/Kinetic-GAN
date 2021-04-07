@@ -13,7 +13,7 @@ from utils import general
 from feeder.cgan_feeder import Feeder
 
 
-test = general.load('wcgan-graph', 'plot_loss', run_id=-1)
+test = general.load('cgan-graph', 'plot_loss', run_id=-1)
 
 
 d_loss = np.concatenate(test['d_loss'])

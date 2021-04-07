@@ -23,7 +23,7 @@ if not os.path.exists(models_out): os.makedirs(models_out)
 if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--n_epochs", type=int, default=1000, help="number of epochs of training")
+parser.add_argument("--n_epochs", type=int, default=3000, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
@@ -31,6 +31,7 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=128, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
+parser.add_argument("--t_size", type=int, default=300, help="size of each image dimension")
 parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=10000, help="interval between image sampling")
@@ -41,7 +42,11 @@ parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-g
 opt = parser.parse_args()
 print(opt)
 
-img_shape = (opt.channels, 64, opt.img_size)
+config_file = open(os.path.join(out,"config.txt"),"w")
+config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
+config_file.close()
+
+img_shape = (opt.channels, opt.t_size, opt.img_size)
 
 cuda = True if torch.cuda.is_available() else False
 print(cuda)
@@ -55,7 +60,7 @@ class Generator(nn.Module):
         def block(in_feat, out_feat, normalize=True):
             layers = [nn.Linear(in_feat, out_feat)]
             if normalize:
-                layers.append(nn.BatchNorm1d(out_feat, momentum=0.8))
+                layers.append(nn.BatchNorm1d(out_feat, 0.8))
             layers.append(nn.LeakyReLU(0.2, inplace=True))
             return layers
 
@@ -119,7 +124,7 @@ dataloader = torch.utils.data.DataLoader(
     batch_size=opt.batch_size,
     shuffle=True,
     drop_last=True,
-    num_workers=4
+    num_workers=opt.n_cpu
 )
 
 # Optimizers
@@ -170,7 +175,7 @@ for epoch in range(opt.n_epochs):
     for i, (imgs, labels) in enumerate(dataloader):
         batches_done = epoch * len(dataloader) + i
         
-        imgs = imgs[:,:,:64,:]
+        imgs = imgs[:,:,:opt.t_size,:]
 
         batch_size = imgs.shape[0]
 
@@ -231,7 +236,7 @@ for epoch in range(opt.n_epochs):
         loss_g.append(g_loss.data.cpu())
 
         if batches_done % opt.sample_interval == 0:
-            sample_image(n_row=120, batches_done=batches_done)
+            sample_image(n_row=60, batches_done=batches_done)
 
             general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
         
