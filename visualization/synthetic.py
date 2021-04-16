@@ -4,6 +4,7 @@ import cv2
 from PIL import ImageColor
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.ndimage import gaussian_filter1d
 
 sys.path.append(".")
 
@@ -51,11 +52,21 @@ def normal_skeleton(data):
     return data
 
 
+def gaussian_filter(data):
+    T, V, C = data.shape
+
+    for v in range(V):
+        for c in range(C):
+            data[:, v, c] = gaussian_filter1d(data[:, v, c],opt.sigma)
+
+    return data
+
+
+
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
 leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
-
 
 
 
@@ -76,11 +87,12 @@ data = np.load(opt.path, mmap_mode='r')
 print('Data shape', data.shape)
 
 data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints], (1, 2, 0)) for index in opt.index_sample])
-#data_numpy = cv2.normalize(data_numpy, None, alpha=dataset.min, beta=dataset.max, norm_type = cv2.NORM_MINMAX)
 data_numpy = np.array([rotation(d, 0,50) for d in data_numpy])
 data_numpy = np.array([normal_skeleton(d) for d in data_numpy])
-
-print(data_numpy.shape)
+print(data_numpy.max())
+print(data_numpy.min())
+if opt.sigma != 0:
+    data_numpy = np.array([gaussian_filter(d) for d in data_numpy])
 print(data_numpy.max())
 print(data_numpy.min())
 

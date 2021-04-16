@@ -72,9 +72,9 @@ body = [trunk_joints, arm_joints, leg_joints]
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
 parser.add_argument("--index_sample", nargs='+', type=int, default=-1, help="Sample's index")
-parser.add_argument("--time", type=int, default=300, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
+parser.add_argument("--time", type=int, default=64, help="Re-adjust padding limit from time")  # In case the gan was trained with padding on time
 parser.add_argument("--joints", type=int, default=25, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
-parser.add_argument("--sigma", type=float, default=1.1, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
+parser.add_argument("--sigma", type=float, default=0, help="Re-adjust padding limit from joints")  # In case the gan was trained with padding on joints
 
 opt = parser.parse_args()
 print(opt)
@@ -88,7 +88,7 @@ data = np.load(opt.path, mmap_mode='r')
 print('Data shape', data.shape)
 
 data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints], (1, 2, 0)) for index in opt.index_sample])
-data_numpy = np.array([rotation(d, 0,50) for d in data_numpy])
+data_numpy = np.array([rotation(d, 85,0) for d in data_numpy])
 data_numpy = np.array([normal_skeleton(d) for d in data_numpy])
 print(data_numpy.max())
 print(data_numpy.min())
@@ -147,6 +147,7 @@ for frame_idx in range(data_numpy.shape[1]):
 
         
     plt.savefig(os.path.join(out,"zau_"+str(frame_idx)+".png"))
+    #plt.show()
     print("The {} frame 3d skeleton......".format(frame_idx))
 
     ax.set_facecolor('none')

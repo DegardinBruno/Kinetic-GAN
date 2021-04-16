@@ -23,7 +23,7 @@ if not os.path.exists(models_out): os.makedirs(models_out)
 if not os.path.exists(images_out): os.makedirs(images_out)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--n_epochs", type=int, default=3000, help="number of epochs of training")
+parser.add_argument("--n_epochs", type=int, default=1000, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=16, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
@@ -31,14 +31,14 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=128, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
-parser.add_argument("--t_size", type=int, default=300, help="size of each image dimension")
+parser.add_argument("--t_size", type=int, default=64, help="size of each image dimension")
 parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=10000, help="interval between image sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between image sampling")
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
-parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/Shift-NTU/xview/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/Shift-NTU/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -227,10 +227,11 @@ for epoch in range(opt.n_epochs):
             d_loss.backward()
             optimizer_D.step()
 
-        print(
-            "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
-            % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
-        )
+        if batches_done % 100 == 0:
+            print(
+                "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
+                % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
+            )
 
         loss_d.append(d_loss.data.cpu())
         loss_g.append(g_loss.data.cpu())

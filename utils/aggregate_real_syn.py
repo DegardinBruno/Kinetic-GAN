@@ -1,4 +1,7 @@
 import numpy as np, os, re, sys, pickle
+
+sys.path.append(".")
+
 from feeder.cgan_feeder import Feeder
 from collections import Counter
 
@@ -8,9 +11,9 @@ root_real_data  = "/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy"
 root_real_label = "/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl"
 root_syn_data   = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_syn_gauss_data.npy'
 root_syn_label  = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_syn_gauss_label.pkl'
-root_fuse_data  = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_fuse_gauss_data.npy'
-root_fuse_label  = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_fuse_gauss_label.pkl'
-qtd = 100
+root_fuse_data  = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_fuse200_gauss_data.npy'
+root_fuse_label  = '/home/degar/DATASETS/st-gcn/NTU/xview-syn/filtered/train_fuse200_gauss_label.pkl'
+qtd = 200
 
 dataset_real = Feeder(root_real_data, root_real_label, norm=False)
 dataset_syn  = Feeder(root_syn_data, root_syn_label, norm=False)

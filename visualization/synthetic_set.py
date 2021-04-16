@@ -97,6 +97,7 @@ config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
 config_file.close()
 
 data   = np.load(opt.path, mmap_mode='r')
+print(data.max())
 print(data.shape)
 
 if opt.labels is not None:
@@ -116,7 +117,6 @@ print('Data shape', data.shape)
 data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints, 0], (1, 2, 0)) for index in opt.index_sample])
 #data_numpy = cv2.normalize(data_numpy, None, alpha=dataset.min, beta=dataset.max, norm_type = cv2.NORM_MINMAX)
 data_numpy = np.array([rotation(d, 0,50,0) for d in data_numpy])
-#data_numpy = np.array([normal_skeleton(d) for d in data_numpy])
 print(data_numpy.max())
 print(data_numpy.min())
 if opt.sigma != 0:
@@ -139,8 +139,8 @@ ax = Axes3D(fig)
 
 ax.view_init(init_vertical, init_horizon)
 
-data_numpy[1,:,:,2] = data_numpy[1,:,:,2]+2
-data_numpy[2,:,:,0] = data_numpy[2,:,:,0]-2
+data_numpy[1,:,:,2] = data_numpy[1,:,:,2]+4
+data_numpy[2,:,:,0] = data_numpy[2,:,:,0]-4
 
 print(data_numpy.shape)
 
@@ -149,9 +149,9 @@ for frame_idx in range(data_numpy.shape[1]):
     ax.set_title("Frame: {}".format(frame_idx))
 
 
-    ax.set_xlim3d([-1, 1])
-    ax.set_ylim3d([-1, 1])
-    ax.set_zlim3d([0, 1])
+    ax.set_xlim3d([-2, 2])
+    ax.set_ylim3d([-3, 3])
+    ax.set_zlim3d([0, 2])
 
     for data in data_numpy:
 

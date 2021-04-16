@@ -15,7 +15,6 @@ import torch.nn.functional as F
 import torch
 from feeder.cgan_feeder import Feeder
 from utils import general
-from collections import Counter
 
 out        = general.check_runs('cgan-graph')
 models_out  = os.path.join(out, 'models')
@@ -43,8 +42,8 @@ parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-
 parser.add_argument("--gen_model_path", type=str, default="runs/cgan-graph/shift-ntu-epoch1000/models/generator_2350000.pth", help="path to gen model")
 parser.add_argument("--disc_model_path", type=str, default="runs/cgan-graph/shift-ntu-epoch1000/models/discriminator_2350000.pth", help="path to gen model")
 parser.add_argument("--gen_label", type=int, default=59, help="Action to generate, default: Jump")
-parser.add_argument("--gen_qtd", type=int, default=500, help="How many samples to generate per class")
-parser.add_argument("--threshold", type=float, default=0.8, help="Confidence threshold")
+parser.add_argument("--gen_qtd", type=int, default=1000, help="How many samples to generate per class")
+parser.add_argument("--threshold", type=float, default=0.90, help="Confidence threshold")
 opt = parser.parse_args()
 print(opt)
 
@@ -138,45 +137,33 @@ generator.eval()
 discriminator.load_state_dict(torch.load(opt.disc_model_path))
 discriminator.eval()
 
+# Generate Samples and Labels
+z = Variable(FloatTensor(np.random.normal(0, 1, (opt.gen_qtd, opt.latent_dim))))
+labels_np = np.array([opt.gen_label for _ in range(opt.gen_qtd)])
+labels = Variable(LongTensor(labels_np))
+gen_imgs = generator(z, labels)
 
-new_imgs   = []
-new_labels = []
+print(gen_imgs.shape)
 
-classes = np.arange(opt.n_classes)
-qtd = 500
-while(len(classes)>0):
+# Samples validity with discriminator
+validity = discriminator(gen_imgs, labels).data.cpu().numpy()
+filter_val = np.where(validity>opt.threshold)[0]
 
-    if len(classes)<20:
-        qtd = 3000
+print(filter_val)
+print(filter_val.shape)
 
-    # Generate Samples and Labels
-    z         = Variable(FloatTensor(np.random.normal(0, 1, (qtd*len(classes), opt.latent_dim))))
-    labels_np = np.array([num for _ in range(qtd) for num in classes])
-    labels    = Variable(LongTensor(labels_np))
-    gen_imgs  = generator(z, labels)
+gen_imgs = gen_imgs[filter_val]
+labels_np = labels_np[filter_val]
 
-    # Samples validity with discriminator
-    validity   = discriminator(gen_imgs, labels).data.cpu().numpy()
-    filter_val = np.where(validity>opt.threshold)[0]
+print(gen_imgs.shape)
+print(labels_np.shape)
 
+if len(filter_val)>0:
+    with open(os.path.join(images_out, str(opt.gen_label)+'_'+str(opt.gen_qtd)+'_gen_data.npy'), 'wb') as npf:
+        np.save(npf, gen_imgs.data.cpu())
 
-    new_imgs   = gen_imgs[filter_val].data.cpu()  if len(new_imgs)==0 else np.concatenate((new_imgs, gen_imgs[filter_val].data.cpu()), axis=0)
-    new_labels = labels_np[filter_val] if len(new_labels)==0 else np.concatenate((new_labels, labels_np[filter_val]), axis=0)
-    
-
-    tmp     = Counter(new_labels)
-    classes = [i for i in classes if tmp[i]<=opt.gen_qtd]
-
-    print('---------------------------------------------------')
-    print(tmp)
-    print(len(new_labels), classes)
-
-
-with open(os.path.join(images_out, str(opt.n_classes)+'_'+str(opt.gen_qtd)+'_gen_data.npy'), 'wb') as npf:
-    np.save(npf, new_imgs)
-
-with open(os.path.join(images_out, str(opt.n_classes)+'_'+str(opt.gen_qtd)+'_gen_label.npy'), 'wb') as npf:
-    np.save(npf, new_labels)
+    with open(os.path.join(images_out, str(opt.gen_label)+'_'+str(opt.gen_qtd)+'_gen_label.npy'), 'wb') as npf:
+        np.save(npf, labels_np)
 
 
 
