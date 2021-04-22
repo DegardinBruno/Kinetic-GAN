@@ -75,15 +75,6 @@ class st_gcn(nn.Module):
         self.gcn = ConvTemporalGraphical(in_channels, out_channels,
                                         kernel_size[1][lvl])
 
-        self.up_tc = nn.ConvTranspose2d(
-                            in_channels, 
-                            in_channels, 
-                            (4,1), 
-                            stride=(2,1), 
-                            padding=(1,0),
-                            bias=False
-                    )
-
         self.tcn = nn.Sequential(
             nn.Conv2d(
                 out_channels,
@@ -96,6 +87,23 @@ class st_gcn(nn.Module):
         )
 
 
+        if not residual:
+            self.residual = lambda x: 0
+
+        elif (in_channels == out_channels) and (stride == 1):
+            self.residual = lambda x: x
+
+        else:
+            self.residual = nn.Sequential(
+                nn.Conv2d(
+                    in_channels,
+                    out_channels,
+                    kernel_size=1,
+                    stride=(stride, 1)),
+                nn.BatchNorm2d(out_channels),
+            )
+
+
         self.l_relu = nn.LeakyReLU(0.2, inplace=True)
         self.tanh   = nn.Tanh()
 
@@ -105,8 +113,9 @@ class st_gcn(nn.Module):
         
         x = F.interpolate(x, size=(self.up_t,x.size(-1)))  # Exactly like nn.Upsample
 
+        res = self.residual(x)
         x, A = self.gcn(x, A)
-        x    = self.tcn(x)
+        x    = self.tcn(x) + res
 
         return self.tanh(x) if self.tan else self.l_relu(x), A
 
