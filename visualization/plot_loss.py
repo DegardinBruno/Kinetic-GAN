@@ -13,7 +13,7 @@ from utils import general
 from feeder.cgan_feeder import Feeder
 
 
-test = general.load('cgan-graph', 'plot_loss', run_id=-1)
+test = general.load('gc-gan', 'plot_loss', run_id=-1)
 
 
 d_loss = np.concatenate(test['d_loss'])
@@ -38,8 +38,9 @@ plt.plot(x_iter, d_loss, color='blue', linewidth=1, label='D loss', alpha=0.6)
 plt.plot(x_iter, g_loss, color='red', linewidth=1, label='G loss', alpha=0.6)
 
 
-plt.title('GAN - G and D optimized at every batch')
+plt.title('GAN-Graph (WGAN loss) - G optimized every 5 batches')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
+plt.grid(True)
 plt.legend()
 plt.show()

@@ -30,13 +30,13 @@ parser.add_argument("--latent_dim", type=int, default=1024, help="dimensionality
 #parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
 parser.add_argument("--t_size", type=int, default=300, help="size of each image dimension")
 #parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
-#parser.add_argument("--channels", type=int, default=3, help="number of image channels")
+parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--n_critic", type=int, default=5, help="number of training steps for discriminator per iter")
-parser.add_argument("--sample_interval", type=int, default=10000, help="interval between image sampling")
-parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between image sampling")
+parser.add_argument("--sample_interval", type=int, default=1000, help="interval between image sampling")
+parser.add_argument("--checkpoint_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
-parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -54,15 +54,15 @@ lambda_gp = 10
 
 
 # Loss functions
-adversarial_loss = torch.nn.BCELoss()
+# adversarial_loss = torch.nn.BCELoss()
 
-generator     = Generator(1024)
-discriminator = Discriminator(3)
+generator     = Generator(opt.latent_dim)
+discriminator = Discriminator(opt.channels)
 
 if cuda:
     generator.cuda()
     discriminator.cuda()
-    adversarial_loss.cuda()
+    #adversarial_loss.cuda()
 
 
 # Configure data loader
@@ -110,7 +110,89 @@ def compute_gradient_penalty(D, real_samples, fake_samples):
     return gradient_penalty
 
 
+
+
+
 # ----------
+#  Training
+# ----------
+
+loss_d, loss_g = [], []
+batches_done   = 0
+for epoch in range(opt.n_epochs):
+    for i, (imgs, _) in enumerate(dataloader):
+        batches_done = epoch * len(dataloader) + i
+
+        # Configure input
+        real_imgs = Variable(imgs.type(Tensor))
+
+        # ---------------------
+        #  Train Discriminator
+        # ---------------------
+
+        optimizer_D.zero_grad()
+
+        # Sample noise as generator input
+        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim, int(opt.t_size/16), 1))))  # ATTENTION
+
+        # Generate a batch of images
+        fake_imgs = generator(z)
+
+        # Real images
+        real_validity = discriminator(real_imgs)
+        # Fake images
+        fake_validity = discriminator(fake_imgs)
+        # Gradient penalty
+        gradient_penalty = compute_gradient_penalty(discriminator, real_imgs.data, fake_imgs.data)
+        # Adversarial loss
+        d_loss = -torch.mean(real_validity) + torch.mean(fake_validity) + lambda_gp * gradient_penalty
+
+        d_loss.backward()
+        optimizer_D.step()
+
+        optimizer_G.zero_grad()
+
+        # Train the generator every n_critic steps
+        if i % opt.n_critic == 0:
+
+            # -----------------
+            #  Train Generator
+            # -----------------
+
+            # Generate a batch of images
+            fake_imgs = generator(z)
+            # Loss measures generator's ability to fool the discriminator
+            # Train on fake images
+            fake_validity = discriminator(fake_imgs)
+            g_loss = -torch.mean(fake_validity)
+
+            g_loss.backward()
+            optimizer_G.step()
+
+        print(
+            "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
+            % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
+        )
+
+        loss_d.append(d_loss.data.cpu())
+        loss_g.append(g_loss.data.cpu())
+
+        if batches_done % opt.sample_interval == 0:
+            sample_image(batches_done=batches_done)
+
+            general.save('gc-gan', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+        
+        if opt.checkpoint_interval != -1 and batches_done % opt.checkpoint_interval == 0:
+            # Save model checkpoints
+            torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % batches_done))
+            torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % batches_done))
+
+loss_d = np.array(loss_d)
+loss_g = np.array(loss_g)
+
+general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+
+'''# ----------
 #  Training
 # ----------
 
@@ -190,85 +272,5 @@ for epoch in range(opt.n_epochs):
 loss_d = np.array(loss_d)
 loss_g = np.array(loss_g)
 
-general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
-
-
-
-'''# ----------
-#  Training
-# ----------
-
-loss_d, loss_g = [], []
-batches_done   = 0
-for epoch in range(opt.n_epochs):
-    for i, (imgs, _) in enumerate(dataloader):
-        batches_done = epoch * len(dataloader) + i
-
-        # Configure input
-        real_imgs = Variable(imgs.type(Tensor))
-
-        # ---------------------
-        #  Train Discriminator
-        # ---------------------
-
-        optimizer_D.zero_grad()
-
-        # Sample noise as generator input
-        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim, int(opt.t_size/16), 1))))  # ATTENTION
-
-        # Generate a batch of images
-        fake_imgs = generator(z)
-
-        # Real images
-        real_validity = discriminator(real_imgs)
-        # Fake images
-        fake_validity = discriminator(fake_imgs)
-        # Gradient penalty
-        gradient_penalty = compute_gradient_penalty(discriminator, real_imgs.data, fake_imgs.data)
-        # Adversarial loss
-        d_loss = -torch.mean(real_validity) + torch.mean(fake_validity) + lambda_gp * gradient_penalty
-
-        d_loss.backward()
-        optimizer_D.step()
-
-        optimizer_G.zero_grad()
-
-        # Train the generator every n_critic steps
-        if i % opt.n_critic == 0:
-
-            # -----------------
-            #  Train Generator
-            # -----------------
-
-            # Generate a batch of images
-            fake_imgs = generator(z)
-            # Loss measures generator's ability to fool the discriminator
-            # Train on fake images
-            fake_validity = discriminator(fake_imgs)
-            g_loss = -torch.mean(fake_validity)
-
-            g_loss.backward()
-            optimizer_G.step()
-
-        print(
-            "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
-            % (epoch, opt.n_epochs, i, len(dataloader), d_loss.item(), g_loss.item())
-        )
-
-        loss_d.append(d_loss.data.cpu())
-        loss_g.append(g_loss.data.cpu())
-
-        if batches_done % opt.sample_interval == 0:
-            sample_image(batches_done=batches_done)
-
-            general.save('gc-gan', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
-        
-        if opt.checkpoint_interval != -1 and batches_done % opt.checkpoint_interval == 0:
-            # Save model checkpoints
-            torch.save(generator.state_dict(), os.path.join(models_out, "generator_%d.pth" % batches_done))
-            torch.save(discriminator.state_dict(), os.path.join(models_out, "discriminator_%d.pth" % batches_done))
-
-loss_d = np.array(loss_d)
-loss_g = np.array(loss_g)
-
 general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')'''
+
