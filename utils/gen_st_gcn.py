@@ -122,14 +122,17 @@ class st_gcn(nn.Module):
     
     def upsample_s(self, tensor):
 
+        ids  = []
+        mean = []
         for umap in self.graph.mapping[self.lvl]:
-            idx = umap[0]
+            ids.append(umap[0])
             tmp = None
             for nmap in umap[1:]:
                 tmp = torch.unsqueeze(tensor[:, :, :, nmap], -1) if tmp == None else torch.cat([tmp, torch.unsqueeze(tensor[:, :, :, nmap], -1)], -1)
 
-            mean = torch.unsqueeze(torch.mean(tmp, -1), -1)
+            mean.append(torch.unsqueeze(torch.mean(tmp, -1) / (2 if self.lvl==2 else 1), -1))
 
-            tensor = torch.cat([tensor[:,:,:,:idx], mean, tensor[:,:,:,idx:]], -1)
+        for i, idx in enumerate(ids): tensor = torch.cat([tensor[:,:,:,:idx], mean[i], tensor[:,:,:,idx:]], -1)
+
 
         return tensor

@@ -35,8 +35,8 @@ parser.add_argument("--n_critic", type=int, default=1, help="number of training 
 parser.add_argument("--sample_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
-parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -190,7 +190,7 @@ for epoch in range(opt.n_epochs):
 loss_d = np.array(loss_d)
 loss_g = np.array(loss_g)
 
-general.save('cgan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
+general.save('gc-gan-graph', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
 
 '''# ----------
 #  Training

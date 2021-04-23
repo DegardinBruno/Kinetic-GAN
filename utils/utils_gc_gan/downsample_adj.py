@@ -50,6 +50,8 @@ for _ in range(lvls-1):
 
         start+=1
 
+    
+
     mapping = {}
     for i, x in enumerate(G): mapping[int(x)] = i; print(i, x)
     G = nx.relabel_nodes(G, mapping)
@@ -63,8 +65,10 @@ for _ in range(lvls-1):
     As.append(G_l)
     
 
-nx.draw(G, with_labels = True)
-plt.show()
+    nx.draw(G, with_labels = True)
+    plt.show()
+    
+
 
 print(As)
 assert len(As)==lvls

@@ -205,7 +205,6 @@ def upsample_mapping(mapping, nodes, edges, lvls):
 
         neighbors = []
 
-
         for node in nodes[n]:
             if node not in mapping[i][:,1]:
                 hood = []
@@ -213,7 +212,6 @@ def upsample_mapping(mapping, nodes, edges, lvls):
                     hood.append(cmap[0]) if ([node, cmap[1]] in edges[n].tolist()) or ([cmap[1], node] in edges[n].tolist()) else None
                 
                 if len(hood)>0: hood.insert(0, node)
-
 
                 if len(hood)>0: neighbors.append(np.array(hood)) 
 
