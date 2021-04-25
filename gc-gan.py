@@ -3,12 +3,13 @@ import os
 import numpy as np
 import math
 import torch
+import torch.nn as nn
 from torch.autograd import Variable
 import torch.autograd as autograd
 import torch.nn.functional as F
 
 from utils.gen_st_gcn import Generator
-from utils.disc_st_gcn import Discriminator
+#from utils.disc_st_gcn import Discriminator
 from feeder.cgan_feeder import Feeder
 from utils import general
 
@@ -28,15 +29,15 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=1024, help="dimensionality of the latent space")
 #parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
-parser.add_argument("--t_size", type=int, default=300, help="size of each image dimension")
-#parser.add_argument("--img_size", type=int, default=25, help="size of each image dimension")
+parser.add_argument("--t_size", type=int, default=150, help="size of each image dimension")
+parser.add_argument("--v_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
-parser.add_argument("--n_critic", type=int, default=1, help="number of training steps for discriminator per iter")
+parser.add_argument("--n_critic", type=int, default=5, help="number of training steps for discriminator per iter")
 parser.add_argument("--sample_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
-parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU-RGB-D/xview/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -44,10 +45,33 @@ config_file = open(os.path.join(out,"config.txt"),"w")
 config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
 config_file.close()
 
+img_shape = (opt.channels, opt.t_size, opt.v_size)
 
 
 cuda = True if torch.cuda.is_available() else False
 print(cuda)
+
+
+class Discriminator(nn.Module):
+    def __init__(self):
+        super(Discriminator, self).__init__()
+
+        self.model = nn.Sequential(
+            nn.Linear(int(np.prod(img_shape)), 512),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(512, 512),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(512, 256),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Linear(256, 1),
+        )
+
+    def forward(self, img):
+        img_flat = img.view(img.shape[0], -1)
+        validity = self.model(img_flat)
+        return validity
+
+
 
 # Loss weight for gradient penalty
 lambda_gp = 10
@@ -57,7 +81,7 @@ lambda_gp = 10
 # adversarial_loss = torch.nn.BCELoss()
 
 generator     = Generator(opt.latent_dim)
-discriminator = Discriminator(opt.channels)
+discriminator = Discriminator()
 
 if cuda:
     generator.cuda()
