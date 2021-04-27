@@ -88,7 +88,7 @@ data = np.load(opt.path, mmap_mode='r')
 print('Data shape', data.shape)
 
 data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints], (1, 2, 0)) for index in opt.index_sample])
-data_numpy = np.array([rotation(d, 85,0) for d in data_numpy])
+data_numpy = np.array([rotation(d, 0,50) for d in data_numpy])
 data_numpy = np.array([normal_skeleton(d) for d in data_numpy])
 print(data_numpy.max())
 print(data_numpy.min())
@@ -112,8 +112,8 @@ ax = Axes3D(fig)
 
 ax.view_init(init_vertical, init_horizon)
 
-data_numpy[1,:,:,2] = data_numpy[1,:,:,2]+1
-data_numpy[2,:,:,0] = data_numpy[2,:,:,0]-1
+data_numpy[1,:,:,2] = data_numpy[1,:,:,2]+0.35
+data_numpy[2,:,:,0] = data_numpy[2,:,:,0]-0.4
 
 print(data_numpy.shape)
 
@@ -122,9 +122,9 @@ for frame_idx in range(data_numpy.shape[1]):
     ax.set_title("Frame: {}".format(frame_idx))
 
 
-    ax.set_xlim3d([-1, 1])
-    ax.set_ylim3d([-1, 1])
-    ax.set_zlim3d([0, 1])
+    ax.set_xlim3d([-0.3, 0.3])
+    ax.set_ylim3d([-0.3, 0.3])
+    ax.set_zlim3d([0, 0.5])
 
     for data in data_numpy:
 

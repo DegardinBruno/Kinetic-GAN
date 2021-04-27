@@ -75,7 +75,13 @@ class Generator(nn.Module):
 
     def forward(self, noise, labels):
         # Concatenate label embedding and image to produce input
+
+        print(noise.shape)
+        print(labels.shape)
+        print(self.label_emb(labels).shape)
+
         gen_input = torch.cat((self.label_emb(labels), noise), -1)
+        print(gen_input.shape)
         img = self.model(gen_input)
         img = img.view(img.size(0), *img_shape)
         return img
