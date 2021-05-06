@@ -9,7 +9,7 @@ from .utils_gc_gan.graph import Graph
 
 class Discriminator(nn.Module):
     
-    def __init__(self, in_channels, edge_importance_weighting=False, **kwargs):
+    def __init__(self, in_channels, edge_importance_weighting=True, **kwargs):
         super().__init__()
 
         # load graph
@@ -18,19 +18,19 @@ class Discriminator(nn.Module):
 
         # build networks
         spatial_kernel_size  = [A.size(0) for A in self.A]
-        temporal_kernel_size = [9 for _ in self.A]
+        temporal_kernel_size = [3 for _ in self.A]
         kernel_size          = (temporal_kernel_size, spatial_kernel_size)
-        t_size               = 150
+        t_size               = 128
         self.data_bn = nn.BatchNorm1d(in_channels * self.A[0].size(1))
 
         #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
         self.st_gcn_networks = nn.ModuleList((
-            st_gcn(in_channels, 32, kernel_size, 1, graph=self.graph, lvl=0, up_s=False, up_t=t_size, residual=False, **kwargs),
-            st_gcn(32, 64, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=t_size, **kwargs),
-            st_gcn(64, 128, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
-            st_gcn(128, 256, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/4), **kwargs),
-            st_gcn(256, 512, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8),  **kwargs),
-            st_gcn(512, 1024, kernel_size, 1, graph=self.graph, lvl=3, tan=False, up_s=True, up_t=int(t_size/16),  **kwargs),
+            st_gcn(in_channels, 32, kernel_size, 1, graph=self.graph, lvl=0, up_s=True, up_t=t_size, residual=False, **kwargs),
+            st_gcn(32, 64, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=t_size, **kwargs),
+            st_gcn(64, 128, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=int(t_size/2), **kwargs),
+            st_gcn(128, 256, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/4), **kwargs),
+            st_gcn(256, 512, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/8),  **kwargs),
+            st_gcn(512, 1024, kernel_size, 1, graph=self.graph, lvl=3, tan=False, up_s=False, up_t=int(t_size/16),  **kwargs),
         ))
 
 
@@ -47,16 +47,8 @@ class Discriminator(nn.Module):
         self.fcn = nn.Conv2d(1024, 1, kernel_size=1)
 
     def forward(self, x):
-
-
-        # data normalization
+        
         N, C, T, V = x.size()
-        x = x.permute(0, 3, 1, 2).contiguous()
-        x = x.view(N, V * C, T)
-        x = self.data_bn(x)
-        x = x.view(N, V, C, T)
-        x = x.permute(0, 1, 3, 2).contiguous()
-        x = x.view(N, C, T, V)
 
         # forward
         for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
@@ -86,7 +78,7 @@ class st_gcn(nn.Module):
                 lvl=3,
                 dropout=0,
                 residual=True,
-                up_s=False, up_t=150, tan=False):
+                up_s=False, up_t=128, tan=False):
         super().__init__()
 
         assert len(kernel_size) == 2
@@ -104,7 +96,6 @@ class st_gcn(nn.Module):
                 (stride, 1),
                 padding,
             ),
-            nn.BatchNorm2d(out_channels),
         )
 
 
@@ -121,7 +112,6 @@ class st_gcn(nn.Module):
                     out_channels,
                     kernel_size=1,
                     stride=(stride, 1)),
-                nn.BatchNorm2d(out_channels),
             )
 
 
@@ -130,18 +120,19 @@ class st_gcn(nn.Module):
 
     def forward(self, x, A):
         
-        x = self.downsample_s(x) if self.up_s else x
-        
-        x = F.interpolate(x, size=(self.up_t,x.size(-1)))  # Exactly like nn.Upsample
 
         res = self.residual(x)
         x, A = self.gcn(x, A)
         x    = self.tcn(x) + res
 
+        x = self.downsample_s(x) if self.up_s else x
+        
+        x = F.interpolate(x, size=(self.up_t,x.size(-1)))  # Exactly like nn.Upsample
+
         return self.tanh(x) if self.tan else self.l_relu(x), A
 
 
     def downsample_s(self, tensor):
-        keep = self.graph.map[self.lvl][:,1]
+        keep = self.graph.map[self.lvl+1][:,1]
 
         return tensor[:,:,:,keep]

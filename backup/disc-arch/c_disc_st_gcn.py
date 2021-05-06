@@ -7,7 +7,7 @@ from .utils_gc_gan.tgcn import ConvTemporalGraphical
 from .utils_gc_gan.graph import Graph
 
 
-class Generator(nn.Module):
+class Discriminator(nn.Module):
     
     def __init__(self, in_channels, n_classes, edge_importance_weighting=True, **kwargs):
         super().__init__()
@@ -18,20 +18,20 @@ class Generator(nn.Module):
 
         # build networks
         spatial_kernel_size  = [A.size(0) for A in self.A]
-        temporal_kernel_size = [7 for i, _ in enumerate(self.A)]
+        temporal_kernel_size = [7 for _ in self.A]
         kernel_size          = (temporal_kernel_size, spatial_kernel_size)
         self.t_size = t_size = 128
 
         #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
         self.st_gcn_networks = nn.ModuleList((
-            st_gcn(in_channels+n_classes, 512, kernel_size, 1, graph=self.graph, lvl=3, bn=False, residual=False, up_s=False, up_t=int(t_size/16), **kwargs),
-            st_gcn(512, 256, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/16), **kwargs),
-            st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
-            st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=int(t_size/4), **kwargs),
-            st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
-            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=0, up_s=True, **kwargs),
-            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, tan=True, **kwargs)
+            st_gcn(in_channels, 32, kernel_size, 1, graph=self.graph, lvl=0, dw_s=True, dw_t=t_size, residual=False, **kwargs),
+            st_gcn(32, 64, kernel_size, 1, graph=self.graph, lvl=1, dw_s=False, dw_t=t_size, **kwargs),
+            st_gcn(64, 128, kernel_size, 1, graph=self.graph, lvl=1, dw_s=True, dw_t=int(t_size/2), **kwargs),
+            st_gcn(128, 256, kernel_size, 1, graph=self.graph, lvl=2, dw_s=False, dw_t=int(t_size/4), **kwargs),
+            st_gcn(256, 512, kernel_size, 1, graph=self.graph, lvl=2, dw_s=True, dw_t=int(t_size/8),  **kwargs),
+            st_gcn(512, 1024, kernel_size, 1, graph=self.graph, lvl=3, tan=False, dw_s=False, dw_t=int(t_size/16),  **kwargs),
         ))
+
 
         # initialize parameters for edge importance weighting
         if edge_importance_weighting:
@@ -42,21 +42,27 @@ class Generator(nn.Module):
         else:
             self.edge_importance = [1] * len(self.st_gcn_networks)
 
-        self.label_emb = nn.Embedding(n_classes, n_classes)
+
+        # fcn for prediction
+        self.fcn = nn.Linear(1024, 1)
+
+    def forward(self, x):
         
-
-    def forward(self, x, labels):
-
-        c = self.label_emb(labels)
-        c = c.view(c.size(0), c.size(1), 1, 1).repeat(1, 1, int(self.t_size/16), 1)
-
-        x = torch.cat((c, x), 1)
-    
+        N, C, T, V = x.size()
+        
         # forward
         for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
             x, _ = gcn(x, self.A[gcn.lvl] * importance)
 
-        return x
+        
+        # global pooling
+        x = F.avg_pool2d(x, x.size()[2:])
+        x = x.view(N, -1)
+
+        # prediction
+        validity = self.fcn(x)
+
+        return validity
 
     
 
@@ -70,31 +76,26 @@ class st_gcn(nn.Module):
                 graph=None,
                 lvl=3,
                 dropout=0,
-                bn=True,
                 residual=True,
-                up_s=False, 
-                up_t=128, 
-                tan=False):
+                dw_s=False, dw_t=128, tan=False):
         super().__init__()
 
         assert len(kernel_size) == 2
         assert kernel_size[0][lvl] % 2 == 1
         padding = ((kernel_size[0][lvl] - 1) // 2, 0)
-        self.graph, self.lvl, self.up_s, self.up_t, self.tan = graph, lvl, up_s, up_t, tan
+        self.graph, self.lvl, self.dw_s, self.dw_t, self.tan = graph, lvl, dw_s, dw_t, tan
         self.gcn = ConvTemporalGraphical(in_channels, out_channels,
                                         kernel_size[1][lvl])
 
-        tcn = [nn.Conv2d(
+        self.tcn = nn.Sequential(
+            nn.Conv2d(
                 out_channels,
                 out_channels,
                 (kernel_size[0][lvl], 1),
                 (stride, 1),
                 padding,
-            )]
-        
-        tcn.append(nn.BatchNorm2d(out_channels)) if bn else None
-
-        self.tcn = nn.Sequential(*tcn)
+            ),
+        )
 
 
         if not residual:
@@ -110,7 +111,6 @@ class st_gcn(nn.Module):
                     out_channels,
                     kernel_size=1,
                     stride=(stride, 1)),
-                nn.BatchNorm2d(out_channels),
             )
 
 
@@ -118,31 +118,20 @@ class st_gcn(nn.Module):
         self.tanh   = nn.Tanh()
 
     def forward(self, x, A):
-
-        x = self.upsample_s(x) if self.up_s else x
         
-        x = F.interpolate(x, size=(self.up_t,x.size(-1)))  # Exactly like nn.Upsample
 
         res = self.residual(x)
         x, A = self.gcn(x, A)
         x    = self.tcn(x) + res
 
+        x = self.downsample_s(x) if self.dw_s else x
+        
+        x = F.interpolate(x, size=(self.dw_t,x.size(-1)))  # Exactly like nn.Upsample
+
         return self.tanh(x) if self.tan else self.l_relu(x), A
 
-    
-    def upsample_s(self, tensor):
 
-        ids  = []
-        mean = []
-        for umap in self.graph.mapping[self.lvl]:
-            ids.append(umap[0])
-            tmp = None
-            for nmap in umap[1:]:
-                tmp = torch.unsqueeze(tensor[:, :, :, nmap], -1) if tmp == None else torch.cat([tmp, torch.unsqueeze(tensor[:, :, :, nmap], -1)], -1)
+    def downsample_s(self, tensor):
+        keep = self.graph.map[self.lvl+1][:,1]
 
-            mean.append(torch.unsqueeze(torch.mean(tmp, -1) / (2 if self.lvl==2 else 1), -1))
-
-        for i, idx in enumerate(ids): tensor = torch.cat([tensor[:,:,:,:idx], mean[i], tensor[:,:,:,idx:]], -1)
-
-
-        return tensor
+        return tensor[:,:,:,keep]

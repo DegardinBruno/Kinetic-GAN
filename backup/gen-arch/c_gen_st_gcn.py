@@ -24,13 +24,13 @@ class Generator(nn.Module):
 
         #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
         self.st_gcn_networks = nn.ModuleList((
-            st_gcn(in_channels+n_classes, 512, kernel_size, 1, graph=self.graph, lvl=3, bn=False, residual=False, up_s=False, up_t=int(t_size/16), **kwargs),
-            st_gcn(512, 256, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/16), **kwargs),
-            st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
-            st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=int(t_size/4), **kwargs),
-            st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
-            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=0, up_s=True, **kwargs),
-            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, tan=True, **kwargs)
+            st_gcn(in_channels+n_classes, 512, kernel_size, 1, graph=self.graph, lvl=3, linear=True, residual=False, up_s=False, up_t=1, **kwargs),
+            st_gcn(512, 256, kernel_size, 1, graph=self.graph, lvl=3, up_s=False, up_t=int(t_size/16), **kwargs),
+            st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/16), **kwargs),
+            st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
+            st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=int(t_size/4), **kwargs),
+            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
+            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, up_s=True, tan=True, **kwargs)
         ))
 
         # initialize parameters for edge importance weighting
@@ -46,12 +46,11 @@ class Generator(nn.Module):
         
 
     def forward(self, x, labels):
+        
+        c = self.label_emb(labels)        
+        x = torch.cat((c, x), -1)
+        #x = F.interpolate(x, size=(int(self.t_size/16), 1))
 
-        c = self.label_emb(labels)
-        c = c.view(c.size(0), c.size(1), 1, 1).repeat(1, 1, int(self.t_size/16), 1)
-
-        x = torch.cat((c, x), 1)
-    
         # forward
         for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
             x, _ = gcn(x, self.A[gcn.lvl] * importance)
@@ -66,35 +65,40 @@ class st_gcn(nn.Module):
                 in_channels,
                 out_channels,
                 kernel_size,
-                stride=1,
-                graph=None,
-                lvl=3,
-                dropout=0,
-                bn=True,
-                residual=True,
-                up_s=False, 
-                up_t=128, 
-                tan=False):
+                stride   = 1,
+                graph    = None,
+                lvl      = 3,
+                dropout  = 0,
+                linear   = False,
+                residual = True,
+                bn       = True,
+                up_s     = False, 
+                up_t     = 128, 
+                tan      = False):
         super().__init__()
 
         assert len(kernel_size) == 2
         assert kernel_size[0][lvl] % 2 == 1
         padding = ((kernel_size[0][lvl] - 1) // 2, 0)
         self.graph, self.lvl, self.up_s, self.up_t, self.tan = graph, lvl, up_s, up_t, tan
-        self.gcn = ConvTemporalGraphical(in_channels, out_channels,
-                                        kernel_size[1][lvl])
+        self.linear = linear
 
-        tcn = [nn.Conv2d(
-                out_channels,
-                out_channels,
-                (kernel_size[0][lvl], 1),
-                (stride, 1),
-                padding,
-            )]
-        
-        tcn.append(nn.BatchNorm2d(out_channels)) if bn else None
+        if linear:
+            self.fcn = nn.Linear(in_channels, out_channels)
+        else:
+            self.gcn = ConvTemporalGraphical(in_channels, out_channels,
+                                            kernel_size[1][lvl])
 
-        self.tcn = nn.Sequential(*tcn)
+            self.tcn = nn.Sequential(
+                nn.Conv2d(
+                    out_channels,
+                    out_channels,
+                    (kernel_size[0][lvl], 1),
+                    (stride, 1),
+                    padding,
+                ),
+                nn.BatchNorm2d(out_channels),
+            )
 
 
         if not residual:
@@ -120,12 +124,16 @@ class st_gcn(nn.Module):
     def forward(self, x, A):
 
         x = self.upsample_s(x) if self.up_s else x
-        
-        x = F.interpolate(x, size=(self.up_t,x.size(-1)))  # Exactly like nn.Upsample
+        x = F.interpolate(x, size=(self.up_t,x.size(-1))) if not self.linear else x  # Exactly like nn.Upsample
 
         res = self.residual(x)
-        x, A = self.gcn(x, A)
-        x    = self.tcn(x) + res
+
+        if self.linear:
+            x = self.fcn(x)
+            x = x.view(x.size(0), x.size(1), 1, 1)
+        else:
+            x, A = self.gcn(x, A)
+            x    = self.tcn(x) + res
 
         return self.tanh(x) if self.tan else self.l_relu(x), A
 

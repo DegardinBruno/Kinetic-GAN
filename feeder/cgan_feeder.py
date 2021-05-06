@@ -64,7 +64,7 @@ class Feeder(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         # get data
-        data_numpy = np.array(self.data[index,:,:150,:,0])
+        data_numpy = np.array(self.data[index,:,:,:,0])
         data_numpy = 2 * ((data_numpy-self.min)/(self.max - self.min)) - 1 if self.norm else data_numpy
         label = self.label[index]
         
