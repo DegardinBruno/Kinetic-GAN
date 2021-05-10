@@ -78,7 +78,7 @@ class st_gcn(nn.Module):
                 lvl=3,
                 dropout=0,
                 residual=True,
-                up_s=False, up_t=128, tan=False):
+                up_s=False, up_t=64, tan=False):
         super().__init__()
 
         assert len(kernel_size) == 2
