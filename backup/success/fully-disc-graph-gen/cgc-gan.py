@@ -9,7 +9,7 @@ import torch.autograd as autograd
 import torch.nn.functional as F
 
 from utils.c_gen_st_gcn import Generator
-from utils.c_disc_st_gcn import Discriminator
+#from utils.c_disc_st_gcn import Discriminator
 # from utils.st_gcn import Discriminator
 from feeder.cgan_feeder import Feeder
 from utils import general
@@ -58,7 +58,7 @@ print(cuda)
 lambda_gp = 10
 
 
-'''class Discriminator(nn.Module):
+class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
 
@@ -79,7 +79,7 @@ lambda_gp = 10
     def forward(self, img, labels):
         d_in = torch.cat((img.view(img.shape[0], -1), self.label_emb(labels)), -1)
         validity = self.model(d_in)
-        return validity'''
+        return validity
 
 # Loss functions
 # adversarial_loss = torch.nn.BCELoss()  # For normal sampling
@@ -87,7 +87,7 @@ lambda_gp = 10
 # auxiliary_loss   = torch.nn.NLLLoss()    # For conditional sampling (Aux-Class GAN)
 
 generator     = Generator(opt.latent_dim, opt.n_classes)
-discriminator = Discriminator(opt.channels, opt.n_classes)
+discriminator = Discriminator()
 
 if cuda:
     generator.cuda()
@@ -113,7 +113,7 @@ LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
 
 
 def sample_image(n_row, batches_done):
-    z = Variable(Tensor(np.random.normal(0, 1, (10*n_row, opt.latent_dim, int(opt.t_size/16), 1))))
+    z = Variable(Tensor(np.random.normal(0, 1, (10*n_row, opt.latent_dim)))) # , int(opt.t_size/16), 1
     # Get labels ranging from 0 to n_classes for n rows
     labels = np.array([num for _ in range(10) for num in range(n_row)])
     labels = Variable(LongTensor(labels))
@@ -168,7 +168,7 @@ for epoch in range(opt.n_epochs):
         optimizer_D.zero_grad()
 
         # Sample noise as generator input
-        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim, int(opt.t_size/16), 1))))  # ATTENTION int(opt.t_size/16)
+        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim))))  # ATTENTION , int(opt.t_size/16), 1
 
         # Generate a batch of images
         fake_imgs = generator(z, labels)

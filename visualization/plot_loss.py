@@ -21,10 +21,10 @@ d_loss = np.concatenate(test['d_loss'])
 g_loss = np.concatenate(test['g_loss'])
 
 
-d_loss = d_loss[:int(len(d_loss)/2352)*2352]
-g_loss = g_loss[:int(len(g_loss)/2352)*2352]
-d_loss = np.array(np.split(d_loss, int(len(d_loss)/2352)))
-g_loss = np.array(np.split(g_loss, int(len(g_loss)/2352)))
+d_loss = d_loss[:int(len(d_loss)/1176)*1176]
+g_loss = g_loss[:int(len(g_loss)/1176)*1176]
+d_loss = np.array(np.split(d_loss, int(len(d_loss)/1176)))
+g_loss = np.array(np.split(g_loss, int(len(g_loss)/1176)))
 
 
 d_loss = [np.mean(loss) for loss in d_loss]
