@@ -20,7 +20,7 @@ class Discriminator(nn.Module):
         spatial_kernel_size  = [A.size(0) for A in self.A]
         temporal_kernel_size = [3 for _ in self.A]
         kernel_size          = (temporal_kernel_size, spatial_kernel_size)
-        t_size               = 128
+        t_size               = 64
         self.data_bn = nn.BatchNorm1d(in_channels * self.A[0].size(1))
 
         #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
