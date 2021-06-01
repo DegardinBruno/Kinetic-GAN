@@ -7,12 +7,14 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.autograd as autograd
 import torch.nn.functional as F
+from shutil import copyfile
 
 from utils.c_gen_st_gcn import Generator
 from utils.c_disc_st_gcn import Discriminator
 # from utils.st_gcn import Discriminator
 from feeder.cgan_feeder import Feeder
 from utils import general
+
 
 
 out        = general.check_runs('cgc-gan')
@@ -37,14 +39,18 @@ parser.add_argument("--n_critic", type=int, default=5, help="number of training 
 parser.add_argument("--sample_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=1000, help="interval between image sampling")
 parser.add_argument("--d_interval", type=int, default=1, help="interval of interation for discriminator")
-parser.add_argument("--data_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/home/degar/DATASETS/st-gcn/NTU/xview/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
 config_file = open(os.path.join(out,"config.txt"),"w")
 config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
 config_file.close()
+
+copyfile(os.path.basename(__file__), os.path.join(out, os.path.basename(__file__)))
+copyfile('utils/c_gen_st_gcn.py', os.path.join(out, 'c_gen_st_gcn.py'))
+copyfile('utils/c_disc_st_gcn.py', os.path.join(out, 'c_disc_st_gcn.py'))
 
 img_shape = (opt.channels, opt.t_size, opt.v_size)
 

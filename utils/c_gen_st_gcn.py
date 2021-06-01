@@ -7,6 +7,16 @@ from .utils_gc_gan.tgcn import ConvTemporalGraphical
 from .utils_gc_gan.graph import Graph
 
 
+class NoiseInjection(nn.Module):
+    def __init__(self, channel):
+        super().__init__()
+
+        self.weight = nn.Parameter(torch.zeros(1, channel, 1, 1))
+
+    def forward(self, image, noise):
+        return image + self.weight * noise
+
+
 class Generator(nn.Module):
     
     def __init__(self, in_channels, n_classes, edge_importance_weighting=True, **kwargs):
@@ -113,6 +123,7 @@ class st_gcn(nn.Module):
                 nn.BatchNorm2d(out_channels),
             )
 
+        self.noise = NoiseInjection(out_channels)
 
         self.l_relu = nn.LeakyReLU(0.2, inplace=True)
         self.tanh   = nn.Tanh()
@@ -126,6 +137,10 @@ class st_gcn(nn.Module):
         res = self.residual(x)
         x, A = self.gcn(x, A)
         x    = self.tcn(x) + res
+
+        # Noise Inject
+        noise = torch.randn(x.size(0), 1, x.size(2), x.size(3), device='cuda:0')
+        x     = self.noise(x, noise)
 
         return self.tanh(x) if self.tan else self.l_relu(x), A
 
