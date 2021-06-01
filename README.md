@@ -1,10 +1,12 @@
 # Graph_GAN
 Code for the paper "Generative Adversarial Graph Convolutional Networks to Synthesize Human Actions"
 
+### Download NTU RGB+D X-Subject Dataset
+FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
 
 
 ### cGC-GAN
-cGC-GAN with NTU RGB+D dataset as input
+cGC-GAN with NTU RGB+D xsub dataset as input
 
 #### Train
 ```
