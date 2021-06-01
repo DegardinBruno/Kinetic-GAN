@@ -2,22 +2,13 @@
 Code for the paper "Generative Adversarial Graph Convolutional Networks to Synthesize Human Actions"
 
 
----
-### dc-GAN
-Deep Convolutional GAN adapted with NTU-RGB+D as input
+
+### cGC-GAN
+cGC-GAN with NTU RGB+D dataset as input
 
 #### Train
 ```
-python dcgan-graph.py --data_path path_train_data --label_path path_train_labels
-```
-
-#
-### cGAN
-Conditional-GAN adapted with NTU-RGB+D as input
-
-#### Train
-```
-python cgan_graph.py --data_path path_train_data --label_path path_train_labels
+python cgc-gan.py --data_path path_train_data --label_path path_train_labels
 ```
 
 ---
