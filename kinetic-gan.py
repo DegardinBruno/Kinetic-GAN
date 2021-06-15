@@ -11,7 +11,6 @@ from shutil import copyfile
 
 from utils.c_gen_st_gcn import Generator
 from utils.c_disc_st_gcn import Discriminator
-# from utils.st_gcn import Discriminator
 from feeder.cgan_feeder import Feeder
 from utils import general
 
