@@ -3,8 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from .utils_gc_gan.tgcn import ConvTemporalGraphical
-from .utils_gc_gan.graph import Graph
+from .init_gan.tgcn import ConvTemporalGraphical
+from .init_gan.graph_ntu import Graph_NTU
+from .init_gan.graph_h36m import Graph_h36m
+import numpy as np
 
 
 class NoiseInjection(nn.Module):
@@ -17,30 +19,48 @@ class NoiseInjection(nn.Module):
         return image + self.weight * noise
 
 
+class Mapping_Net(nn.Module):
+    def __init__(self, latent=1024, mlp=8):
+        super().__init__()
+
+        layers = []
+        for i in range(mlp):
+            linear = nn.Linear(latent, latent)
+            linear.weight.data.normal_()
+            linear.bias.data.zero_()
+            layers.append(linear)
+            layers.append(nn.LeakyReLU(0.2))
+
+        self.mlp = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.mlp(x)
+
+
 class Generator(nn.Module):
     
-    def __init__(self, in_channels, n_classes, edge_importance_weighting=True, **kwargs):
+    def __init__(self, in_channels, n_classes, t_size, edge_importance_weighting=True, dataset='ntu', **kwargs):
         super().__init__()
 
         # load graph
-        self.graph = Graph()
+        self.graph = Graph_NTU() if dataset == 'ntu' else Graph_h36m()
         self.A = [torch.tensor(Al, dtype=torch.float32, requires_grad=False).cuda() for Al in self.graph.As]
 
         # build networks
         spatial_kernel_size  = [A.size(0) for A in self.A]
         temporal_kernel_size = [3 for i, _ in enumerate(self.A)]
         kernel_size          = (temporal_kernel_size, spatial_kernel_size)
-        self.t_size = t_size = 64
+        self.t_size          = t_size
 
-        #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
+        self.mlp = Mapping_Net(in_channels+n_classes)
         self.st_gcn_networks = nn.ModuleList((
-            st_gcn(in_channels+n_classes, 512, kernel_size, 1, graph=self.graph, lvl=3, bn=False, residual=False, up_s=False, up_t=int(t_size/16), **kwargs),
-            st_gcn(512, 256, kernel_size, 1, graph=self.graph, lvl=2, up_s=True, up_t=int(t_size/16), **kwargs),
-            st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
-            st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=1, up_s=True, up_t=int(t_size/4), **kwargs),
-            st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
-            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=0, up_s=True, **kwargs),
-            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, tan=True, **kwargs)
+            st_gcn(in_channels+n_classes, 512, kernel_size, 1, graph=self.graph, lvl=3, bn=False, residual=False, up_s=False, up_t=1, **kwargs),
+            st_gcn(512, 256, kernel_size, 1, graph=self.graph, lvl=3, up_s=False, up_t=int(t_size/16), **kwargs),
+            st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, bn=False, up_s=True, up_t=int(t_size/16), **kwargs),
+            st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
+            st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, bn=False, up_s=True, up_t=int(t_size/4), **kwargs),
+            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
+            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, bn=False, up_s=True, up_t=t_size, tan=True, **kwargs)
         ))
 
         # initialize parameters for edge importance weighting
@@ -55,20 +75,37 @@ class Generator(nn.Module):
         self.label_emb = nn.Embedding(n_classes, n_classes)
         
 
-    def forward(self, x, labels):
+    def forward(self, x, labels, trunc=None):
 
         c = self.label_emb(labels)
-        c = c.view(c.size(0), c.size(1), 1, 1).repeat(1, 1, int(self.t_size/16), 1)
+        x = torch.cat((c, x), -1)
 
-        x = torch.cat((c, x), 1)
-    
+        w = []
+        for i in x:
+            w = self.mlp(i).unsqueeze(0) if len(w)==0 else torch.cat((w, self.mlp(i).unsqueeze(0)), dim=0)
+
+        w = self.truncate(w, 1000, trunc) if trunc is not None else w  # Truncation trick on W
+
+        x = w.view((*w.shape, 1, 1))
+
         # forward
         for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
             x, _ = gcn(x, self.A[gcn.lvl] * importance)
 
         return x
 
-    
+    def truncate(self, w, mean, truncation):
+        t = Variable(torch.cuda.FloatTensor(np.random.normal(0, 1, (mean, *w.shape[1:]))))
+        w_m = []
+        for i in t:
+            w_m = self.mlp(i).unsqueeze(0) if len(w_m)==0 else torch.cat((w_m, self.mlp(i).unsqueeze(0)), dim=0)
+
+        m = w_m.mean(0, keepdim=True)
+
+        for i,_ in enumerate(w):
+            w[i] = m + truncation*(w[i] - m)
+
+        return w
 
 class st_gcn(nn.Module):
 
@@ -137,7 +174,7 @@ class st_gcn(nn.Module):
         res = self.residual(x)
         x, A = self.gcn(x, A)
         x    = self.tcn(x) + res
-
+        
         # Noise Inject
         noise = torch.randn(x.size(0), 1, x.size(2), x.size(3), device='cuda:0')
         x     = self.noise(x, noise)

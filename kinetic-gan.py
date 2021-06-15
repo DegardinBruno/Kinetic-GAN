@@ -43,6 +43,7 @@ parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-
 opt = parser.parse_args()
 print(opt)
 
+# Save config file and respective generator and discriminator for reproducibilty
 config_file = open(os.path.join(out,"config.txt"),"w")
 config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
 config_file.close()
@@ -53,20 +54,18 @@ copyfile('utils/discriminator.py', os.path.join(out, 'discriminator.py'))
 
 img_shape = (opt.channels, opt.t_size, opt.v_size)
 
-
 cuda = True if torch.cuda.is_available() else False
 print(cuda)
 
 # Loss weight for gradient penalty
 lambda_gp = 10
 
-generator     = Generator(opt.latent_dim, opt.n_classes)
+generator     = Generator(opt.latent_dim, opt.n_classes, opt.t_size)
 discriminator = Discriminator(opt.channels, opt.n_classes)
 
 if cuda:
     generator.cuda()
     discriminator.cuda()
-    # auxiliary_loss.cuda()
 
 
 # Configure data loader
@@ -87,7 +86,7 @@ LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
 
 
 def sample_image(n_row, batches_done):
-    z = Variable(Tensor(np.random.normal(0, 1, (10*n_row, opt.latent_dim, int(opt.t_size/16), 1))))
+    z = Variable(Tensor(np.random.normal(0, 1, (10*n_row, opt.latent_dim))))
     # Get labels ranging from 0 to n_classes for n rows
     labels = np.array([num for _ in range(10) for num in range(n_row)])
     labels = Variable(LongTensor(labels))
@@ -187,7 +186,7 @@ for epoch in range(opt.n_epochs):
         loss_g.append(g_loss.data.cpu())
 
         if batches_done % opt.sample_interval == 0:
-            sample_image(n_row=60, batches_done=batches_done)
+            sample_image(n_row=opt.n_classes, batches_done=batches_done)
 
             general.save('kinetic-gan', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
         

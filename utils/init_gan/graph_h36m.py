@@ -1,7 +1,8 @@
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
-class Graph():
+class Graph_h36m():
     """ The Graph to model the skeletons extracted by the openpose
 
     Args:
@@ -45,18 +46,17 @@ class Graph():
     def get_edge(self):
         self.num_node = []
         self.nodes = []
-        self.center = [21 - 1]
+        self.center = [8]  # Thorax
         self.nodes = []
         self.Gs = []
         
-        neighbor_base = [(1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
-                        (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
-                        (11, 10), (12, 11), (1, 13), (14, 13), (15, 14),
-                        (16, 15), (1, 17), (18, 17), (19, 18), (20, 19),
-                        (22, 8), (23, 8), (24, 12), (25, 12)]
-        neighbor_link = [(i - 1, j - 1) for (i, j) in neighbor_base]
+        neighbor_link = [(1,2), (2,3), (0,1),
+                         (4,5), (5,6), (0,4),
+                         (0,7), (7,8), (8,9), 
+                         (8,10), (10,11), (11,12), 
+                         (8, 13), (13,14), (14,15)]
 
-        nodes = np.array([i for i in range(25)])
+        nodes = np.array([i for i in range(16)])
         G = nx.Graph()
         G.add_nodes_from(nodes)
         G.add_edges_from(neighbor_link)
@@ -71,6 +71,9 @@ class Graph():
         self.num_node.append(len(G))
         self.Gs.append(G.copy())
 
+        '''plt.clf()  # Uncomment this to visualize graphs
+        nx.draw(G, with_labels = True)
+        plt.savefig('G_full.pdf')'''
 
         for _ in range(self.lvls-1):
             stay  = []
@@ -78,6 +81,7 @@ class Graph():
             while True:
                 remove = []
                 for i in G:
+                    if i==9 and _==0: continue
                     if len(G.edges(i)) == start and i not in stay:
                         lost = []
                         for j,k in G.edges(i):
@@ -119,8 +123,12 @@ class Graph():
             self.edge.append(G_l)
             self.num_node.append(len(G))
             self.Gs.append(G.copy())
-            
 
+            '''plt.clf()  # Uncomment this to visualize graphs
+            nx.draw(G, with_labels = True)
+            plt.savefig('G_' + str(_) + '.pdf')'''
+        
+        
         assert len(self.num_node) == self.lvls
         assert len(self.nodes)    == self.lvls
         assert len(self.edge)     == self.lvls
