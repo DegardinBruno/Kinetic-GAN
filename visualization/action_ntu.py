@@ -154,7 +154,7 @@ for frame_idx in range(data_numpy.shape[1]):
         ax.set_zlabel('Z')
 
         
-    plt.savefig(os.path.join(out,"zau_"+str(frame_idx)+".png"))
+    plt.savefig(os.path.join(out,"frame_"+str(frame_idx)+".png"))
     #plt.show()
     print("The {} frame 3d skeleton......".format(frame_idx))
 
