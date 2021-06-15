@@ -18,9 +18,9 @@ from utils import general
 
 out        = general.check_runs('kinetic-gan')
 models_out  = os.path.join(out, 'models')
-images_out = os.path.join(out, 'images')
+actions_out = os.path.join(out, 'actions')
 if not os.path.exists(models_out): os.makedirs(models_out)
-if not os.path.exists(images_out): os.makedirs(images_out)
+if not os.path.exists(actions_out): os.makedirs(actions_out)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=2000, help="number of epochs of training")
@@ -31,9 +31,9 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=512, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
-parser.add_argument("--t_size", type=int, default=64, help="size of each image dimension")
-parser.add_argument("--v_size", type=int, default=25, help="size of each image dimension")
-parser.add_argument("--channels", type=int, default=3, help="number of image channels")
+parser.add_argument("--t_size", type=int, default=64, help="size of each temporal dimension")
+parser.add_argument("--v_size", type=int, default=25, help="size of each spatial dimension (vertices)")
+parser.add_argument("--channels", type=int, default=3, help="number of channels (coordinates)")
 parser.add_argument("--n_critic", type=int, default=5, help="number of training steps for discriminator per generator's iteration")
 parser.add_argument("--lambda_gp", type=int, default=10, help="Loss weight for gradient penalty in WGAN-GP Loss")
 parser.add_argument("--sample_interval", type=int, default=5000, help="interval between action sampling")
@@ -52,11 +52,10 @@ copyfile(os.path.basename(__file__), os.path.join(out, os.path.basename(__file__
 copyfile('utils/generator.py', os.path.join(out, 'generator.py'))
 copyfile('utils/discriminator.py', os.path.join(out, 'discriminator.py'))
 
-img_shape = (opt.channels, opt.t_size, opt.v_size)
-
 cuda = True if torch.cuda.is_available() else False
-print(cuda)
+print('CUDA',cuda)
 
+# Models initialization
 generator     = Generator(opt.latent_dim, opt.n_classes, opt.t_size)
 discriminator = Discriminator(opt.channels, opt.n_classes, opt.t_size, opt.latent_dim)
 
@@ -82,13 +81,13 @@ Tensor     = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
 
 
-def sample_image(n_row, batches_done):
+def sample_action(n_row, batches_done):
     z = Variable(Tensor(np.random.normal(0, 1, (10*n_row, opt.latent_dim))))
     # Get labels ranging from 0 to n_classes for n rows
     labels = np.array([num for _ in range(10) for num in range(n_row)])
     labels = Variable(LongTensor(labels))
     gen_imgs = generator(z, labels)
-    with open(os.path.join(images_out, str(batches_done)+'.npy'), 'wb') as npf:
+    with open(os.path.join(actions_out, str(batches_done)+'.npy'), 'wb') as npf:
         np.save(npf, gen_imgs.data.cpu())
 
 
@@ -140,12 +139,12 @@ for epoch in range(opt.n_epochs):
         # Sample noise as generator input
         z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim))))
 
-        # Generate a batch of images
+        # Generate a batch of actions
         fake_imgs = generator(z, labels)
 
-        # Real images
+        # Real actions
         real_validity = discriminator(real_imgs, labels)
-        # Fake images
+        # Fake actions
         fake_validity = discriminator(fake_imgs, labels)
         # Gradient penalty
         gradient_penalty = compute_gradient_penalty(discriminator, real_imgs.data, fake_imgs.data, labels.data)
@@ -164,10 +163,10 @@ for epoch in range(opt.n_epochs):
             #  Train Generator
             # -----------------
 
-            # Generate a batch of images
+            # Generate a batch of actions
             fake_imgs = generator(z, labels)
             # Loss measures generator's ability to fool the discriminator
-            # Train on fake images
+            # Train on fake actions
             fake_validity = discriminator(fake_imgs, labels)
             g_loss = -torch.mean(fake_validity)
 
@@ -183,7 +182,7 @@ for epoch in range(opt.n_epochs):
         loss_g.append(g_loss.data.cpu())
 
         if batches_done % opt.sample_interval == 0:
-            sample_image(n_row=opt.n_classes, batches_done=batches_done)
+            sample_action(n_row=opt.n_classes, batches_done=batches_done)
 
             general.save('kinetic-gan', {'d_loss': loss_d, 'g_loss': loss_g}, 'plot_loss')
         
