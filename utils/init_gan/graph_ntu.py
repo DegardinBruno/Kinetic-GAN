@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 
-class Graph_NTU():
+class graph_ntu():
     """ The Graph to model the skeletons extracted by the openpose
 
     Args:

@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 from .init_gan.tgcn import ConvTemporalGraphical
-from .init_gan.graph_ntu import Graph_NTU
+from .init_gan.graph_ntu import graph_ntu
 from .init_gan.graph_h36m import Graph_h36m
 import numpy as np
 
@@ -43,7 +43,7 @@ class Generator(nn.Module):
         super().__init__()
 
         # load graph
-        self.graph = Graph_NTU() if dataset == 'ntu' else Graph_h36m()
+        self.graph = graph_ntu() if dataset == 'ntu' else Graph_h36m()
         self.A = [torch.tensor(Al, dtype=torch.float32, requires_grad=False).cuda() for Al in self.graph.As]
 
         # build networks

@@ -35,9 +35,9 @@ parser.add_argument("--t_size", type=int, default=64, help="size of each image d
 parser.add_argument("--v_size", type=int, default=25, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--n_critic", type=int, default=5, help="number of training steps for discriminator per generator's iteration")
-parser.add_argument("--lambda_gp", type=int, default=10, help="Gradient penalty weight for WGAN-GP Loss")
-parser.add_argument("--sample_interval", type=int, default=5000, help="interval between image sampling")
-parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between image sampling")
+parser.add_argument("--lambda_gp", type=int, default=10, help="Loss weight for gradient penalty in WGAN-GP Loss")
+parser.add_argument("--sample_interval", type=int, default=5000, help="interval between action sampling")
+parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between model saving")
 parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_data.npy", help="path to data")
 parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_label.pkl", help="path to label")
 opt = parser.parse_args()
@@ -57,11 +57,8 @@ img_shape = (opt.channels, opt.t_size, opt.v_size)
 cuda = True if torch.cuda.is_available() else False
 print(cuda)
 
-# Loss weight for gradient penalty
-lambda_gp = 10
-
 generator     = Generator(opt.latent_dim, opt.n_classes, opt.t_size)
-discriminator = Discriminator(opt.channels, opt.n_classes)
+discriminator = Discriminator(opt.channels, opt.n_classes, opt.t_size, opt.latent_dim)
 
 if cuda:
     generator.cuda()
@@ -127,10 +124,10 @@ batches_done   = 0
 for epoch in range(opt.n_epochs):
     for i, (imgs, labels) in enumerate(dataloader):
 
-        imgs = imgs[:,:,:opt.t_size,:]
         batches_done = epoch * len(dataloader) + i
 
         # Configure input
+        imgs = imgs[:,:,:opt.t_size,:]
         real_imgs = Variable(imgs.type(Tensor))
         labels    = Variable(labels.type(LongTensor))
 
@@ -141,7 +138,7 @@ for epoch in range(opt.n_epochs):
         optimizer_D.zero_grad()
 
         # Sample noise as generator input
-        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim, int(opt.t_size/16), 1))))  # ATTENTION int(opt.t_size/16)
+        z = Variable(Tensor(np.random.normal(0, 1, (opt.batch_size, opt.latent_dim))))
 
         # Generate a batch of images
         fake_imgs = generator(z, labels)
@@ -153,14 +150,14 @@ for epoch in range(opt.n_epochs):
         # Gradient penalty
         gradient_penalty = compute_gradient_penalty(discriminator, real_imgs.data, fake_imgs.data, labels.data)
         # Adversarial loss
-        d_loss = -torch.mean(real_validity) + torch.mean(fake_validity) + lambda_gp * gradient_penalty
+        d_loss = -torch.mean(real_validity) + torch.mean(fake_validity) + opt.lambda_gp * gradient_penalty
 
         d_loss.backward()
         optimizer_D.step()
 
         optimizer_G.zero_grad()
 
-        # Train the generator every n_critic steps
+        # Train the generator after n_critic discriminator steps
         if i % opt.n_critic == 0:
 
             # -----------------

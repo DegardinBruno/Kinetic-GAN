@@ -3,24 +3,26 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-from .utils_gc_gan.tgcn import ConvTemporalGraphical
-from .utils_gc_gan.graph import Graph
+from .init_gan.tgcn import ConvTemporalGraphical
+from .init_gan.graph_ntu import graph_ntu
+from .init_gan.graph_h36m import Graph_h36m
+import numpy as np
 
 
 class Discriminator(nn.Module):
     
-    def __init__(self, in_channels, n_classes, edge_importance_weighting=True, **kwargs):
+    def __init__(self, in_channels, n_classes, t_size, latent, edge_importance_weighting=True, dataset='ntu', **kwargs):
         super().__init__()
 
         # load graph
-        self.graph = Graph()
+        self.graph = graph_ntu() if dataset == 'ntu' else Graph_h36m()
         self.A = [torch.tensor(Al, dtype=torch.float32, requires_grad=False).cuda() for Al in self.graph.As]
 
         # build networks
         spatial_kernel_size  = [A.size(0) for A in self.A]
         temporal_kernel_size = [3 for _ in self.A]
         kernel_size          = (temporal_kernel_size, spatial_kernel_size)
-        self.t_size = t_size = 64
+        self.t_size          = t_size
 
         #kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
         self.st_gcn_networks = nn.ModuleList((
@@ -29,7 +31,7 @@ class Discriminator(nn.Module):
             st_gcn(64, 128, kernel_size, 1, graph=self.graph, lvl=1, dw_s=True, dw_t=int(t_size/2), **kwargs),
             st_gcn(128, 256, kernel_size, 1, graph=self.graph, lvl=2, dw_s=False, dw_t=int(t_size/4), **kwargs),
             st_gcn(256, 512, kernel_size, 1, graph=self.graph, lvl=2, dw_s=True, dw_t=int(t_size/8),  **kwargs),
-            st_gcn(512, 1024, kernel_size, 1, graph=self.graph, lvl=3, tan=False, dw_s=False, dw_t=int(t_size/16),  **kwargs),
+            st_gcn(512, latent, kernel_size, 1, graph=self.graph, lvl=3, tan=False, dw_s=False, dw_t=int(t_size/16),  **kwargs),
         ))
 
 
@@ -45,7 +47,7 @@ class Discriminator(nn.Module):
         self.label_emb = nn.Embedding(n_classes, n_classes)
 
         # fcn for prediction
-        self.fcn = nn.Linear(1024, 1)
+        self.fcn = nn.Linear(latent, 1)
 
     def forward(self, x, labels):
         
