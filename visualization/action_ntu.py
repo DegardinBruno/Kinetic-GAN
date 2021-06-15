@@ -68,11 +68,12 @@ body = [trunk_joints, arm_joints, leg_joints]
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
 parser.add_argument("--labels", type=str, help="Path to generated samples")
-parser.add_argument("--label", type=int, help="Path to generated samples")
+parser.add_argument("--label", type=int, default=-1, help="Path to generated samples")
 parser.add_argument("--indexes", nargs='+', type=int, default=-1, help="THREE sample's index")
 parser.add_argument("--time", type=int, default=64, help="Temporal size") 
 parser.add_argument("--joints", type=int, default=25, help="Number of joints")
 parser.add_argument("--sigma", type=float, default=0, help="Gaussian filter's sigma")
+parser.add_argument("--norm", action='store_true', help="Normalize values")
 
 opt = parser.parse_args()
 print(opt)
@@ -84,6 +85,9 @@ config_file.close()
 data = np.load(opt.path, mmap_mode='r')
 if len(data.shape) > 4:
     data = np.squeeze(data, axis=-1)
+
+if opt.norm:
+    data = (2 * ((data-data.min())/(data.max() - data.min())) - 1)
 
 if opt.labels is not None:
     with open(opt.labels, 'rb') as f:
@@ -98,7 +102,7 @@ if opt.label != -1:
 print('Data shape', data.shape)
 
 data_numpy = np.array([np.transpose(data[index,:,:opt.time,:opt.joints], (1, 2, 0)) for index in opt.indexes])
-data_numpy = np.array([rotation(d, -10,10) for d in data_numpy])  # Rotate on x-axis and y-axis to align visualization
+data_numpy = np.array([rotation(d, 0,50) for d in data_numpy])  # Rotate on x-axis and y-axis to align visualization
 data_numpy = np.array([normal_skeleton(d) for d in data_numpy])  # Align to zero, comment if no need
 print(data_numpy.max())
 print(data_numpy.min())
