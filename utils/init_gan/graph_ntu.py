@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
 class graph_ntu():
     """ The Graph to model the skeletons extracted by the openpose
@@ -72,11 +73,6 @@ class graph_ntu():
         self.Gs.append(G.copy())
 
 
-        '''plt.clf()  # Uncomment this to visualize graphs
-        nx.draw(G, with_labels = True)
-        plt.savefig('G_full.pdf')'''
-
-
         for _ in range(self.lvls-1):
             stay  = []
             start = 1
@@ -125,10 +121,11 @@ class graph_ntu():
             self.num_node.append(len(G))
             self.Gs.append(G.copy())
 
-            '''plt.clf()  # Uncomment this to visualize graphs
+        
+        '''for i, G in enumerate(self.Gs):  # Uncomment this to visualize graphs
+            plt.clf()  # Uncomment this to visualize graphs
             nx.draw(G, with_labels = True)
-            plt.savefig('G_' + str(_) + '.pdf')'''
-            
+            plt.savefig('G_' + str(i) + '.pdf')'''
 
         assert len(self.num_node) == self.lvls
         assert len(self.nodes)    == self.lvls
