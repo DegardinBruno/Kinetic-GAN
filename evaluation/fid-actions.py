@@ -3,7 +3,7 @@ import pathlib
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from multiprocessing import cpu_count
 
-import numpy as np
+import numpy as np,sys
 import torch
 import torchvision.transforms as TF
 from torch.autograd import Variable
@@ -18,25 +18,30 @@ except ImportError:
     def tqdm(x):
         return x
 
+        
+sys.path.append(".")
+
 from pytorch_fid.inception import InceptionV3
-from feeder.cgan_fid_feeder import Feeder
+from feeder.feeder import Feeder
 from utils import general
 
-out        = general.check_runs('fid-graph')
+out        = general.check_runs('fid-actions')
 if not os.path.exists(out): os.makedirs(out)
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument('--batch-size', type=int, default=16,
                     help='Batch size to use')
-parser.add_argument('--sigma', type=float, default=1.3,
+parser.add_argument('--sigma', type=float, default=0,
                     help='Gaussian filter sigma')
+parser.add_argument('--t_size', type=int, default=64,
+                    help='Temporal dimension')
 parser.add_argument('--device', type=str, default='cuda:0',
                     help='Device to use. Like cuda, cuda:0 or cpu')
 parser.add_argument('--dims', type=int, default=2048,
                     choices=list(InceptionV3.BLOCK_INDEX_BY_DIM),
                     help=('Dimensionality of Inception features to use. '
                           'By default, uses pool3 features'))
-parser.add_argument('path', type=str, nargs=2,
+parser.add_argument('path', type=str, nargs=4,
                     help=('Paths to the generated images or '
                           'to .npz statistic files'))
                           
@@ -44,7 +49,7 @@ parser.add_argument('path', type=str, nargs=2,
 FloatTensor = torch.cuda.FloatTensor
 
 
-def get_activations(path, model, batch_size=50, dims=2048, device='cpu', norm=True):
+def get_activations(path, labels, model, batch_size=50, dims=2048, device='cpu', norm=True):
     """Calculates the activations of the pool_3 layer for all images.
     Params:
     -- model       : Instance of inception model
@@ -62,7 +67,9 @@ def get_activations(path, model, batch_size=50, dims=2048, device='cpu', norm=Tr
     """
     model.eval()
 
-    dataset = Feeder(path, norm=norm, sigma=args.sigma)
+    dataset = Feeder(path, labels, norm=norm, sigma=args.sigma, classes=classe, dataset='ntu')
+    print(dataset.classes, args.sigma)
+    print(len(dataset))
 
     # Configure data loader
     dataloader = torch.utils.data.DataLoader(
@@ -79,6 +86,7 @@ def get_activations(path, model, batch_size=50, dims=2048, device='cpu', norm=Tr
 
     for batch in tqdm(dataloader):
         batch = Variable(batch[0].type(FloatTensor))
+        batch = batch[:,:,:args.t_size,:]
         
         with torch.no_grad():
             pred = model(batch)[0]
@@ -151,7 +159,7 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
             + np.trace(sigma2) - 2 * tr_covmean)
 
 
-def calculate_activation_statistics(path, model, batch_size=50, dims=2048,
+def calculate_activation_statistics(path, labels, model, batch_size=50, dims=2048,
                                     device='cpu', norm=True):
     """Calculation of the statistics used by the FID.
     Params:
@@ -168,14 +176,14 @@ def calculate_activation_statistics(path, model, batch_size=50, dims=2048,
     -- sigma : The covariance matrix of the activations of the pool_3 layer of
                the inception model.
     """
-    act = get_activations(path, model, batch_size, dims, device, norm=norm)  # !!!
+    act = get_activations(path, labels, model, batch_size, dims, device, norm=norm)  # !!!
     mu = np.mean(act, axis=0)
     sigma = np.cov(act, rowvar=False)
     return mu, sigma
 
 
-def compute_statistics_of_path(path, model, batch_size, dims, device, norm=True):
-    m, s = calculate_activation_statistics(path, model, batch_size,
+def compute_statistics_of_path(path, labels, model, batch_size, dims, device, norm=True):
+    m, s = calculate_activation_statistics(path, labels, model, batch_size,
                                             dims, device, norm=norm)
 
     return m, s
@@ -188,17 +196,18 @@ def calculate_fid_given_paths(paths, batch_size, device, dims):
     model = InceptionV3([block_idx]).to(device)
 
 
-    m1, s1 = compute_statistics_of_path(paths[0], model, batch_size,
+    m1, s1 = compute_statistics_of_path(paths[0],paths[1], model, batch_size,
                                         dims, device)
-    m2, s2 = compute_statistics_of_path(paths[1], model, batch_size,
+    m2, s2 = compute_statistics_of_path(paths[2],paths[3], model, batch_size,
                                         dims, device, norm=False)
     fid_value = calculate_frechet_distance(m1, s1, m2, s2)
 
     return fid_value
 
 args = None
+classe = None
 def main():
-    global args
+    global args, classe
     
     args = parser.parse_args()
     print(args)
@@ -212,18 +221,37 @@ def main():
     else:
         device = torch.device(args.device)
 
-    fid_value = calculate_fid_given_paths(args.path,
-                                          args.batch_size,
-                                          device,
-                                          args.dims)
+
+    '''
+    class_fid = []
+    for i in range(60):
+        classe = [i]
+        fid_value = calculate_fid_given_paths(args.path,
+                                            args.batch_size,
+                                            device,
+                                            args.dims)
+        class_fid.append(fid_value)
+        
+        print('FID: ', fid_value)
     
+
+    config_file = open(os.path.join(out,"config.txt"),"w")
+    config_file.write(str(os.path.basename(__file__)) + '|' + str(args) + '\n'+'FID: ' + str(np.mean(class_fid)))
+    config_file.close()
+
+    general.save('fid-graph', {'fid_classes': class_fid}, 'fid_classes')
+    print('FID: ', np.mean(class_fid))'''
+
+    fid_value = calculate_fid_given_paths(args.path,
+                                            args.batch_size,
+                                            device,
+                                            args.dims)
 
     config_file = open(os.path.join(out,"config.txt"),"w")
     config_file.write(str(os.path.basename(__file__)) + '|' + str(args) + '\n'+'FID: ' + str(fid_value))
     config_file.close()
 
     print('FID: ', fid_value)
-
 
 if __name__ == '__main__':
     main()

@@ -12,6 +12,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from PIL import Image
+from scipy.ndimage import gaussian_filter1d
 
 # visualization
 import time
@@ -29,16 +30,20 @@ class Feeder(torch.utils.data.Dataset):
                  label_path,
                  classes=None,
                  norm=True,
+                 sigma=0,
+                 dataset='ntu',
                  mmap=True):
         self.data_path  = data_path
         self.label_path = label_path
         self.classes    = classes
         self.norm       = norm
+        self.sigma      = sigma
+        self.dataset    = dataset
         self.load_data(mmap)
 
 
     def load_data(self, mmap):
-        # data: N C V T M
+        # data: N C T V M
 
         # load label
         with open(self.label_path, 'rb') as f:
@@ -51,22 +56,34 @@ class Feeder(torch.utils.data.Dataset):
         else:
             self.data = np.load(self.data_path)
 
+        self.max, self.min = self.data.max(), self.data.min()
+
         if self.classes is not None:
             tmp = self.label[np.where(np.isin(self.label, self.classes))]
             self.data  = self.data[np.where(np.isin(self.label, self.classes))]
             self.label = np.nonzero(tmp[:, None] == self.classes)[1]
 
-        self.N, self.C, self.T, self.V, self.M = self.data.shape
-        self.max, self.min = self.data.max(), self.data.min()
+        if self.dataset=='ntu':
+            self.N, self.C, self.T, self.V, self.M = self.data.shape
+        else:
+            self.N, self.C, self.T, self.V = self.data.shape
+
+        print(self.data.shape)
 
     def __len__(self):
         return len(self.label)
 
     def __getitem__(self, index):
         # get data
-        data_numpy = np.array(self.data[index,:,:,:,0])
+        data_numpy = np.array(self.data[index,:,:,:,0]) if self.dataset=='ntu' else np.array(self.data[index])
         data_numpy = 2 * ((data_numpy-self.min)/(self.max - self.min)) - 1 if self.norm else data_numpy
+        if not self.norm and self.sigma != 0:
+            for v in range(self.V):
+                for c in range(self.C):
+                    data_numpy[c, :, v] = gaussian_filter1d(data_numpy[c, :, v], self.sigma)
         label = self.label[index]
         
 
         return data_numpy, label
+
+    
