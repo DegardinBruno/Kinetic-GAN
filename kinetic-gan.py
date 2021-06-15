@@ -38,8 +38,9 @@ parser.add_argument("--n_critic", type=int, default=5, help="number of training 
 parser.add_argument("--lambda_gp", type=int, default=10, help="Loss weight for gradient penalty in WGAN-GP Loss")
 parser.add_argument("--sample_interval", type=int, default=5000, help="interval between action sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between model saving")
-parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_label.pkl", help="path to label")
+parser.add_argument("--dataset", type=str, default="ntu", help="dataset")
+parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/cGC-GAN/datasets/h36m/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/cGC-GAN/datasets/h36m/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -56,8 +57,8 @@ cuda = True if torch.cuda.is_available() else False
 print('CUDA',cuda)
 
 # Models initialization
-generator     = Generator(opt.latent_dim, opt.n_classes, opt.t_size)
-discriminator = Discriminator(opt.channels, opt.n_classes, opt.t_size, opt.latent_dim)
+generator     = Generator(opt.latent_dim, opt.channels, opt.n_classes, opt.t_size, dataset=opt.dataset)
+discriminator = Discriminator(opt.channels, opt.n_classes, opt.t_size, opt.latent_dim, dataset=opt.dataset)
 
 if cuda:
     generator.cuda()
@@ -66,7 +67,7 @@ if cuda:
 
 # Configure data loader
 dataloader = torch.utils.data.DataLoader(
-    dataset=Feeder(opt.data_path, opt.label_path),
+    dataset=Feeder(opt.data_path, opt.label_path, dataset=opt.dataset),
     batch_size=opt.batch_size,
     shuffle=True,
     drop_last=True,

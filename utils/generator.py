@@ -39,7 +39,7 @@ class Mapping_Net(nn.Module):
 
 class Generator(nn.Module):
     
-    def __init__(self, in_channels, n_classes, t_size, edge_importance_weighting=True, dataset='ntu', **kwargs):
+    def __init__(self, in_channels, out_channels, n_classes, t_size, edge_importance_weighting=True, dataset='ntu', **kwargs):
         super().__init__()
 
         # load graph
@@ -59,8 +59,8 @@ class Generator(nn.Module):
             st_gcn(256, 128, kernel_size, 1, graph=self.graph, lvl=2, bn=False, up_s=True, up_t=int(t_size/16), **kwargs),
             st_gcn(128, 64, kernel_size, 1, graph=self.graph, lvl=2, up_s=False, up_t=int(t_size/8), **kwargs),
             st_gcn(64, 32, kernel_size, 1, graph=self.graph, lvl=1, bn=False, up_s=True, up_t=int(t_size/4), **kwargs),
-            st_gcn(32, 3, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
-            st_gcn(3, 3, kernel_size, 1, graph=self.graph, lvl=0, bn=False, up_s=True, up_t=t_size, tan=True, **kwargs)
+            st_gcn(32, out_channels, kernel_size, 1, graph=self.graph, lvl=1, up_s=False, up_t=int(t_size/2), **kwargs),
+            st_gcn(out_channels, out_channels, kernel_size, 1, graph=self.graph, lvl=0, bn=False, up_s=True, up_t=t_size, tan=True, **kwargs)
         ))
 
         # initialize parameters for edge importance weighting

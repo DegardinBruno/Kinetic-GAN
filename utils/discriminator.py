@@ -31,7 +31,7 @@ class Discriminator(nn.Module):
             st_gcn(64, 128, kernel_size, 1, graph=self.graph, lvl=1, dw_s=True, dw_t=int(t_size/2), **kwargs),
             st_gcn(128, 256, kernel_size, 1, graph=self.graph, lvl=2, dw_s=False, dw_t=int(t_size/4), **kwargs),
             st_gcn(256, 512, kernel_size, 1, graph=self.graph, lvl=2, dw_s=True, dw_t=int(t_size/8),  **kwargs),
-            st_gcn(512, latent, kernel_size, 1, graph=self.graph, lvl=3, tan=False, dw_s=False, dw_t=int(t_size/16),  **kwargs),
+            st_gcn(512, latent, kernel_size, 1, graph=self.graph, lvl=3, dw_s=False, dw_t=int(t_size/16),  **kwargs),
         ))
 
 
@@ -86,25 +86,23 @@ class st_gcn(nn.Module):
                 lvl=3,
                 dropout=0,
                 residual=True,
-                dw_s=False, dw_t=64, tan=False):
+                dw_s=False, dw_t=64):
         super().__init__()
 
         assert len(kernel_size) == 2
         assert kernel_size[0][lvl] % 2 == 1
         padding = ((kernel_size[0][lvl] - 1) // 2, 0)
-        self.graph, self.lvl, self.dw_s, self.dw_t, self.tan = graph, lvl, dw_s, dw_t, tan
+        self.graph, self.lvl, self.dw_s, self.dw_t = graph, lvl, dw_s, dw_t
         self.gcn = ConvTemporalGraphical(in_channels, out_channels,
                                         kernel_size[1][lvl])
 
-        self.tcn = nn.Sequential(
-            nn.Conv2d(
+        self.tcn = nn.Conv2d(
                 out_channels,
                 out_channels,
                 (kernel_size[0][lvl], 1),
                 (stride, 1),
                 padding,
-            ),
-        )
+            )
 
 
         if not residual:
@@ -114,17 +112,15 @@ class st_gcn(nn.Module):
             self.residual = lambda x: x
 
         else:
-            self.residual = nn.Sequential(
-                nn.Conv2d(
-                    in_channels,
-                    out_channels,
-                    kernel_size=1,
-                    stride=(stride, 1)),
-            )
+            self.residual = nn.Conv2d(
+                        in_channels,
+                        out_channels,
+                        kernel_size=1,
+                        stride=(stride, 1)
+                    )
 
 
         self.l_relu = nn.LeakyReLU(0.2, inplace=True)
-        self.tanh   = nn.Tanh()
 
     def forward(self, x, A):
         
@@ -137,7 +133,7 @@ class st_gcn(nn.Module):
         
         x = F.interpolate(x, size=(self.dw_t,x.size(-1)))  # Exactly like nn.Upsample
 
-        return self.tanh(x) if self.tan else self.l_relu(x), A
+        return self.l_relu(x), A
 
 
     def downsample_s(self, tensor):
