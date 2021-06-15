@@ -9,9 +9,9 @@ import torch.autograd as autograd
 import torch.nn.functional as F
 from shutil import copyfile
 
-from utils.c_gen_st_gcn import Generator
-from utils.c_disc_st_gcn import Discriminator
-from feeder.cgan_feeder import Feeder
+from utils.generator import Generator
+from utils.discriminator import Discriminator
+from feeder.feeder import Feeder
 from utils import general
 
 

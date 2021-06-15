@@ -1,16 +1,16 @@
-# Graph_GAN
-Code for the paper "Generative Adversarial Graph Convolutional Networks to Synthesize Human Actions"
+# Kinetic-GAN
+Code for the paper "Generative Adversarial Graph Convolutional Networks for Human Action Synthesis"
 
 ### Download NTU RGB+D X-Subject Dataset
 FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
 
 
-### cGC-GAN
-cGC-GAN with NTU RGB+D xsub dataset as input
+### Kinetic-GAN
+Kinetic-GAN with NTU RGB+D xsub dataset as input
 
 #### Train
 ```
-python cgc-gan.py --data_path path_train_data --label_path path_train_labels
+python kinetic-gan.py --data_path path_train_data --label_path path_train_labels
 ```
 
 ---
