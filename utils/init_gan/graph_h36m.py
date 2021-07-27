@@ -116,17 +116,12 @@ class Graph_h36m():
 
 
             self_link = [(int(i), int(i)) for i in G]
-            if _==0:
-                self_link.append((1,2))
+            
             G_l = np.concatenate((np.array(G.edges), self_link), axis=0) if len(np.array(G.edges)) > 0 else self_link
             self.edge.append(G_l)
             self.num_node.append(len(G))
             self.Gs.append(G.copy())
-
-        '''for i, G in enumerate(self.Gs):
-            plt.clf()  # Uncomment this to visualize graphs
-            nx.draw(G, with_labels = True)
-            plt.savefig('G_' + str(i) + '.pdf')'''
+            
 
         assert len(self.num_node) == self.lvls
         assert len(self.nodes)    == self.lvls

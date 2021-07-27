@@ -107,15 +107,17 @@ while(len(classes)>0):
 
 if opt.dataset == 'ntu':
     new_imgs = np.expand_dims(new_imgs, axis=-1)
-print(new_imgs.shape)
-
-
+    
 
 new_labels = np.concatenate((np.expand_dims(new_labels, 0), np.expand_dims(new_labels, 0)), axis=0)  # Remove if not needed
 
-with open(os.path.join(actions_out, str(opt.n_classes if opt.label == -1 else opt.label)+'_'+str(opt.gen_qtd)+'_'+('stochastic' if opt.stochastic else '')+'_gen_data.npy'), 'wb') as npf:
+with open(os.path.join(actions_out, str(opt.n_classes if opt.label == -1 else opt.label)+'_'+str(opt.gen_qtd)+('_trunc' + str(opt.trunc) if opt.trunc_mode!='-' else '')+('_stochastic' if opt.stochastic else '')+'_gen_data.npy'), 'wb') as npf:
     np.save(npf, new_imgs)
 
 
-with open(os.path.join(actions_out, str(opt.n_classes if opt.label == -1 else opt.label)+'_'+str(opt.gen_qtd)+'_'+('stochastic' if opt.stochastic else '')+'_gen_label.pkl'), 'wb') as f:
+with open(os.path.join(actions_out, str(opt.n_classes if opt.label == -1 else opt.label)+'_'+str(opt.gen_qtd)+('_trunc' + str(opt.trunc) if opt.trunc_mode!='-' else '')+('_stochastic' if opt.stochastic else '')+'_gen_z.npy'), 'wb') as npf:
+    np.save(npf, z_s)
+
+
+with open(os.path.join(actions_out, str(opt.n_classes if opt.label == -1 else opt.label)+'_'+str(opt.gen_qtd)+('_trunc' + str(opt.trunc) if opt.trunc_mode!='-' else '')+('_stochastic' if opt.stochastic else '')+'_gen_label.pkl'), 'wb') as f:
     pickle.dump(new_labels, f)
