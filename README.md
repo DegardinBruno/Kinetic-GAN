@@ -22,10 +22,25 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 ### NTU RGB+D
 
-arch     | benchmark | frame length | FID | Config | Model
+arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp4 | cross-subject | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp6 | cross-view | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+
+### NTU-120 RGB+D
+
+arch     | benchmark | actions | frame length | FID | Config | Model
+-------- | --------- | ------------ | --- | ------ | -----
+kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+
+
+### Human3.6M
+
+arch     | benchmark | actions | frame length | FID | Config | Model
+-------- | --------- | ------------ | --- | ------ | -----
+kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
 ### Download NTU RGB+D X-Subject Dataset
 FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
