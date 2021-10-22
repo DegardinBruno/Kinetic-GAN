@@ -1,5 +1,6 @@
 # Kinetic-GAN
-Code for the paper "Generative Adversarial Graph Convolutional Networks for Human Action Synthesis"
+This repository contains the official PyTorch implementation of the following paper:
+> **Generative Adversarial Graph Convolutional Networks for Human Action Synthesis**, Bruno Degardin, João Neves, Vasco Lopes, João Brito, Ehsan Yaghoubi and Hugo Proença, WACV 2022. [[Arxiv Preprint]](https://arxiv.org/abs/2110.11191)
 
 ### Download NTU RGB+D X-Subject Dataset
 FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
