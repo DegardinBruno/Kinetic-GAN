@@ -23,14 +23,14 @@ PyTorchVideo provides reference implementation of a large number of video unders
 ### NTU RGB+D
 
 arch     | benchmark | actions | frame length | FID | Config | Model
--------- | --------- | ------------ | --- | ------ | -----
+-------- | --------- | ------- | ------------ | --- | ------ | -----
 kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
 ### NTU-120 RGB+D
 
 arch     | benchmark | actions | frame length | FID | Config | Model
--------- | --------- | ------------ | --- | ------ | -----
+-------- | --------- | ------- | ------------ | --- | ------ | -----
 kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
@@ -38,7 +38,7 @@ kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di
 ### Human3.6M
 
 arch     | benchmark | actions | frame length | FID | Config | Model
--------- | --------- | ------------ | --- | ------ | -----
+-------- | --------- | ------- | ------------ | --- | ------ | -----
 kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
