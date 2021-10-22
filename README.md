@@ -2,6 +2,19 @@
 This repository contains the official PyTorch implementation of the following paper:
 > **Generative Adversarial Graph Convolutional Networks for Human Action Synthesis**, Bruno Degardin, João Neves, Vasco Lopes, João Brito, Ehsan Yaghoubi and Hugo Proença, WACV 2022. [[Arxiv Preprint]](https://arxiv.org/abs/2110.11191)
 
+## Resources
+
+Material related to our paper is available via the following links:
+
+- Paper: https://arxiv.org/abs/2110.11191
+- Video: TBA
+- Code: https://github.com/DegardinBruno/Kinetic-GAN
+- Datasets
+  - NTU RGB+D: https://github.com/NVlabs/ffhq-dataset
+  - NTU-120 RGB+D: https://github.com/NVlabs/ffhq-dataset
+  - Human3.6M: https://github.com/NVlabs/ffhq-dataset
+
+
 ### Download NTU RGB+D X-Subject Dataset
 FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
 
