@@ -5,7 +5,7 @@ import numpy as np
 from torch.autograd import Variable
 import torch
 
-from utils.generator import Generator
+from models.generator import Generator
 from utils import general
 from collections import Counter
 import pickle
@@ -30,6 +30,7 @@ if not os.path.exists(actions_out): os.makedirs(actions_out)
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", type=int,   default=10,    help="How many samples PER CLASS (each iteration of course)")
 parser.add_argument("--latent_dim", type=int,   default=512,   help="dimensionality of the latent space")
+parser.add_argument("--mlp_dim",    type=int,   default=4,     help="mapping network depth")
 parser.add_argument("--n_classes",  type=int,   default=60,    help="number of classes for dataset")
 parser.add_argument("--label",      type=int,   default=-1,    help="Sepecific label to generate, -1 for all classes")
 parser.add_argument("--t_size",     type=int,   default=64,    help="size of each temporal dimension")

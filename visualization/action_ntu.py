@@ -67,13 +67,13 @@ body = [trunk_joints, arm_joints, leg_joints]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str, help="Path to generated samples")
-parser.add_argument("--labels", type=str, help="Path to generated samples")
-parser.add_argument("--label", type=int, default=-1, help="Path to generated samples")
-parser.add_argument("--indexes", nargs='+', type=int, default=-1, help="THREE sample's index")
+parser.add_argument("--labels", type=str, help="Path to labels")
+parser.add_argument("--label", type=int, default=-1, help="specific label from generated samples")
+parser.add_argument("--indexes", nargs='+', type=int, default=-1, help="THREE sample's index")  # check first index here https://rose1.ntu.edu.sg/dataset/actionRecognition/ then add 60 (e.g. for jump up: 26 86 146)
 parser.add_argument("--time", type=int, default=64, help="Temporal size") 
 parser.add_argument("--joints", type=int, default=25, help="Number of joints")
-parser.add_argument("--sigma", type=float, default=0, help="Gaussian filter's sigma")
-parser.add_argument("--norm", action='store_true', help="Normalize values")
+parser.add_argument("--sigma", type=float, default=0, help="Gaussian filter's sigma FOR BETTER VISUALIZATION only")
+parser.add_argument("--norm", action='store_true', help="Normalize values if comming from real data, normally")
 
 opt = parser.parse_args()
 print(opt)

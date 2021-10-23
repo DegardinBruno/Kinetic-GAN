@@ -135,7 +135,7 @@ fake_actions_batch = []
 real_actions_batch = []
 label_batch = []
 fake_label_batch = []
-labels =  np.arange((10 if opt.dataset=='h36m' else 60)) # If dataset chosen is NTU, you can select the classes for fair evaluation 
+labels =  np.arange((10 if opt.dataset=='h36m' else 60)) # If dataset chosen is NTU, you can select the classes for fair evaluation with others
 i=0
 c = 0
 while c < len(labels):

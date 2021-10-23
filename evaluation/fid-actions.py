@@ -31,8 +31,6 @@ if not os.path.exists(out): os.makedirs(out)
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 parser.add_argument('--batch-size', type=int, default=16,
                     help='Batch size to use')
-parser.add_argument('--sigma', type=float, default=0,
-                    help='Gaussian filter sigma')
 parser.add_argument('--t_size', type=int, default=64,
                     help='Temporal dimension')
 parser.add_argument('--device', type=str, default='cuda:0',
@@ -67,8 +65,8 @@ def get_activations(path, labels, model, batch_size=50, dims=2048, device='cpu',
     """
     model.eval()
 
-    dataset = Feeder(path, labels, norm=norm, sigma=args.sigma, classes=classe, dataset='ntu')
-    print(dataset.classes, args.sigma)
+    dataset = Feeder(path, labels, norm=norm, classes=classe, dataset='ntu')
+    print(dataset.classes)
     print(len(dataset))
 
     # Configure data loader
@@ -221,26 +219,6 @@ def main():
     else:
         device = torch.device(args.device)
 
-
-    '''
-    class_fid = []
-    for i in range(60):
-        classe = [i]
-        fid_value = calculate_fid_given_paths(args.path,
-                                            args.batch_size,
-                                            device,
-                                            args.dims)
-        class_fid.append(fid_value)
-        
-        print('FID: ', fid_value)
-    
-
-    config_file = open(os.path.join(out,"config.txt"),"w")
-    config_file.write(str(os.path.basename(__file__)) + '|' + str(args) + '\n'+'FID: ' + str(np.mean(class_fid)))
-    config_file.close()
-
-    general.save('fid-graph', {'fid_classes': class_fid}, 'fid_classes')
-    print('FID: ', np.mean(class_fid))'''
 
     fid_value = calculate_fid_given_paths(args.path,
                                             args.batch_size,

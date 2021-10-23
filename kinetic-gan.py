@@ -9,12 +9,10 @@ import torch.autograd as autograd
 import torch.nn.functional as F
 from shutil import copyfile
 
-from utils.generator import Generator
-from utils.discriminator import Discriminator
+from models.generator import Generator
+from models.discriminator import Discriminator
 from feeder.feeder import Feeder
 from utils import general
-
-
 
 out        = general.check_runs('kinetic-gan')
 models_out  = os.path.join(out, 'models')
@@ -30,6 +28,7 @@ parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first 
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=512, help="dimensionality of the latent space")
+parser.add_argument("--mlp_dim", type=int, default=4, help="mapping network depth")
 parser.add_argument("--n_classes", type=int, default=60, help="number of classes for dataset")
 parser.add_argument("--t_size", type=int, default=64, help="size of each temporal dimension")
 parser.add_argument("--v_size", type=int, default=25, help="size of each spatial dimension (vertices)")
@@ -39,8 +38,8 @@ parser.add_argument("--lambda_gp", type=int, default=10, help="Loss weight for g
 parser.add_argument("--sample_interval", type=int, default=5000, help="interval between action sampling")
 parser.add_argument("--checkpoint_interval", type=int, default=10000, help="interval between model saving")
 parser.add_argument("--dataset", type=str, default="ntu", help="dataset")
-parser.add_argument("--data_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_data.npy", help="path to data")
-parser.add_argument("--label_path", type=str, default="/media/socialab/bb715954-b8c5-414e-b2e1-95f4d2ff6f3d/ST-GCN/NTU/xsub/train_label.pkl", help="path to label")
+parser.add_argument("--data_path", type=str, default="/media/degar/Data/PhD/Kinetic-GAN/Brito-pc/Degs/DATASETS/NTU/xsub/train_data.npy", help="path to data")
+parser.add_argument("--label_path", type=str, default="/media/degar/Data/PhD/Kinetic-GAN/Brito-pc/Degs/DATASETS/NTU/xsub/train_label.pkl", help="path to label")
 opt = parser.parse_args()
 print(opt)
 
@@ -50,14 +49,14 @@ config_file.write(str(os.path.basename(__file__)) + '|' + str(opt))
 config_file.close()
 
 copyfile(os.path.basename(__file__), os.path.join(out, os.path.basename(__file__)))
-copyfile('utils/generator.py', os.path.join(out, 'generator.py'))
-copyfile('utils/discriminator.py', os.path.join(out, 'discriminator.py'))
+copyfile('models/generator.py', os.path.join(out, 'generator.py'))
+copyfile('models/discriminator.py', os.path.join(out, 'discriminator.py'))
 
 cuda = True if torch.cuda.is_available() else False
 print('CUDA',cuda)
 
 # Models initialization
-generator     = Generator(opt.latent_dim, opt.channels, opt.n_classes, opt.t_size, dataset=opt.dataset)
+generator     = Generator(opt.latent_dim, opt.channels, opt.n_classes, opt.t_size, opt.mlp_dim, dataset=opt.dataset)
 discriminator = Discriminator(opt.channels, opt.n_classes, opt.t_size, opt.latent_dim, dataset=opt.dataset)
 
 if cuda:

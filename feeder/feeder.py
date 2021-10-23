@@ -19,9 +19,9 @@ import time
 
 
 class Feeder(torch.utils.data.Dataset):
-    """ Feeder for skeleton-based action recognition
+    """ Feeder for skeleton-based action synthesis
     Arguments:
-        data_path: the path to '.npy' data, the shape of data should be (N, C, T, V, M)
+        data_path: the path to '.npy' data, the shape of real data should be (N, C, T, V, M) for NTU and (N,C,T,V) for h36m
         label_path: the path to label
     """
 
@@ -30,14 +30,12 @@ class Feeder(torch.utils.data.Dataset):
                  label_path,
                  classes=None,
                  norm=True,
-                 sigma=0,
                  dataset='ntu',
                  mmap=True):
         self.data_path  = data_path
         self.label_path = label_path
-        self.classes    = classes
+        self.classes    = classes  # If we want to use only specified classes (NOT USED IN KINETIC-GAN PAPER)
         self.norm       = norm
-        self.sigma      = sigma
         self.dataset    = dataset
         self.load_data(mmap)
 
@@ -77,13 +75,8 @@ class Feeder(torch.utils.data.Dataset):
         # get data
         data_numpy = np.array(self.data[index,:,:,:,0]) if self.dataset=='ntu' else np.array(self.data[index])
         data_numpy = 2 * ((data_numpy-self.min)/(self.max - self.min)) - 1 if self.norm else data_numpy
-        if not self.norm and self.sigma != 0:
-            for v in range(self.V):
-                for c in range(self.C):
-                    data_numpy[c, :, v] = gaussian_filter1d(data_numpy[c, :, v], self.sigma)
         label = self.label[index]
         
-
         return data_numpy, label
 
     
