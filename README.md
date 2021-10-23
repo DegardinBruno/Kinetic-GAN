@@ -46,8 +46,7 @@ kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.u
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
 kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-
+kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)<br />
 *FID results can differ a bit due to random normal distribution and random noise
 
 
@@ -62,7 +61,7 @@ kinetic-gan-mlp8 | 120 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.
 kinetic-gan-mlp8 | 120 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp8 | 120 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
-*MMD results can differ a bit due to random normal distribution and random noise
+*MMD results can differ a bit due to random normal distribution and random noise<br />
 **Additionally, MMD metric is not as "stable" and descriptive as FID, check paper results.
 
 
