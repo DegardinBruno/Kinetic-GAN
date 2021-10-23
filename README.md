@@ -3,7 +3,7 @@ This repository contains the official PyTorch implementation of the following pa
 > **Generative Adversarial Graph Convolutional Networks for Human Action Synthesis**, Bruno Degardin, João Neves, Vasco Lopes, João Brito, Ehsan Yaghoubi and Hugo Proença, WACV 2022. [[Arxiv Preprint]](https://arxiv.org/abs/2110.11191)
 
 <div align="center">
-  <img width="100%" alt="Kinetic-GAn Illustration" src="./utils/demo_gif.gif">
+  <img width="100%" alt="Kinetic-GAN Illustration" src="./utils/simple_demo.gif">
 </div>
 
 
@@ -44,7 +44,7 @@ arch     | benchmark | actions | frame length | FID | Config | Model
 kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
-*FID results can differ a bit due to random normal distribution and random noise
+*FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
 
 
@@ -55,7 +55,7 @@ arch     | benchmark | actions | frame length | FID | Config | Model
 kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
-*FID results can differ a bit due to random normal distribution and random noise
+*FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
 
 
@@ -78,7 +78,7 @@ kinetic-gan-mlp8 | 120 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi
 You can generate your own samples by using a pre-trained Kinetic-GAN with specified [config and weights](https://github.com/DegardinBruno/Kinetic-GAN#model-zoo-and-benchmarks) as folows:
 
 1. Edit or use [generate.py](./generate.py) to specify the dataset where it was trained and arguments.
-2. Run the training script with (Check class indexes (-1) at [NTU RGB+D Datasets](http://rose1.ntu.edu.sg/datasets/actionrecognition.asp)):
+2. Run the training script with (Check class indexes (label -1) at [NTU RGB+D Datasets](https://rose1.ntu.edu.sg/dataset/actionRecognition/)):
 ```bash
 python generate.py --model model_path  --n_classes number_classes  --label class_index  --gen_qtd how_many_samples  # Check generate.py file
 ```
@@ -88,6 +88,29 @@ python generate.py --model model_path  --n_classes number_classes  --label class
 ```bash
 python visualization/action_ntu.py --path path_samples --labels path_labels --indexes 0 1 2  # Example for Kinetic-GAN trained on NTU or NTU-120
 ```
+
+## Visualization
+You can visualize your samples (`action_ntu.py` for NTU RGB+D and NTU-120 RGB+D and `action_h36m.py` for Human3.6M) by specifying the synthetic samples and labels as follows:
+```bash
+python visualization/action_ntu.py --path path_samples --labels path_labels --indexes 0 1 2  # Example for Kinetic-GAN trained on NTU or NTU-120, check action_ntu.py file
+```
+
+Training will save 10 samples per class at each specified iteration interval. For training with NTU RGB+D, classes are repeated at every 60 samples, run:
+```bash
+python visualization/action_ntu.py --path path_samples --indexes 26 86 146   # ... Example for `jump up` action.
+python visualization/action_ntu.py --path path_samples --indexes 23 83 143   # ... Example for `kicking something` action.
+python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # ...Example for `kicking something` action.
+```
+
+### Blender Visualization
+Blender visualization (with mesh) is only applied for a more appealing visualization. For accessing and reproducing our visualization, use specifically our [blender.py](./visualization/blender.py) with [Blender 2.9+ with Python interpreter](https://www.blender.org/download/) (Interpreter already included in Blender). 
+
+<div align="center">
+  <img width="100%" alt="Blender Actions" src="./utils/actions.gif">
+</div>
+
+Kinetic-GAN generates up to 120 different skeleton actions trained on skeleton-based datasets, which do not have bone rotations specified and dependable by their parent bones, and may cause some poor visualizations with a mesh sometimes (check the initial gif at early iterations).
+
 
 
 ## Training networks
@@ -111,7 +134,7 @@ python visualization/plot_loss.py --batches num_batches_per_epoch --runs kinetic
 ---
 
 ### Visualization
-Visualization of synthetic samples. Check [NTU-RGB+D](http://rose1.ntu.edu.sg/datasets/actionrecognition.asp) dataset labels (index=label-1).
+Visualization of synthetic samples. Check [NTU-RGB+D](https://rose1.ntu.edu.sg/dataset/actionRecognition/) dataset labels (index=label-1).
 Generator synthesizes 10 samples from the 60 classes. Classes are repeated at every 60 samples, check "jump up" example below.
 
 ```
