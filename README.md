@@ -16,6 +16,17 @@ Material related to our paper is available via the following links:
   - Human3.6M: http://socia-lab.di.ubi.pt
 
 
+## System requirements and Installation
+
+* Both Linux and Windows are supported, but we strongly recommend Linux for performance and compatibility reasons.
+* 64-bit Python 3.7+ installation. We recommend pip.
+* PyTorch >= 1.7.1
+* GPU is not mandatory, but we strongly recommend for reproducibilty of results.
+
+```bash
+pip install -r requirements.txt  # use flag --user if permission needed
+```
+
 ## Model Zoo and Benchmarks
 
 PyTorchVideo provides reference implementation of a large number of video understanding approaches. In this document, we also provide comprehensive benchmarks to evaluate the supported models on different datasets using standard evaluation setup. All the models can be downloaded from the provided links.
