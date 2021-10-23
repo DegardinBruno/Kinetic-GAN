@@ -21,7 +21,7 @@ Material related to our paper is available via the following links:
 * Both Linux and Windows are supported, but we strongly recommend Linux for performance and compatibility reasons.
 * 64-bit Python 3.7+ installation. We recommend pip.
 * PyTorch >= 1.7.1
-* GPU is not mandatory, but we strongly recommend for reproducibilty of results.
+* GPU is not mandatory, but we strongly recommend GPU for reproducibilty of results and speed.
 
 ```bash
 pip install -r requirements.txt  # use flag --user if permission needed
@@ -48,10 +48,14 @@ kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di
 
 ### Human3.6M
 
-arch     | benchmark | actions | frame length | FID | Config | Model
--------- | --------- | ------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+arch     | actions | frame length | MMDa | MMDs | Config | Model
+-------- | ------- | ------------ | ---- | ---- | ------ | -----
+kinetic-gan-mlp6 | 120 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | 120 | 64 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | 120 | 128 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | 120 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | 120 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | 120 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
 ### Download NTU RGB+D X-Subject Dataset
 FileZilla -> IP: 10.0.4.137 -> video -> needed_DEGARDIN -> DATASETS -> NTU-RGBD -> xsub -> train_data.npy and train_label.pkl
