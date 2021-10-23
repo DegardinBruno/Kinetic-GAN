@@ -63,6 +63,7 @@ kinetic-gan-mlp8 | 120 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.
 kinetic-gan-mlp8 | 120 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
 
 *MMD results can differ a bit due to random normal distribution and random noise
+**Additionally, MMD metric is not as "stable" and descriptive as FID, check paper results.
 
 
 ### Kinetic-GAN
