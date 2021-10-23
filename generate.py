@@ -21,10 +21,8 @@ def trunc(latent, mean_size, truncation):  # Truncation trick on Z
     return latent
 
 
-out         = general.check_runs('kinetic-gan', id=-1)
-models_out  = os.path.join(out, 'models')
+out         = general.check_runs('kinetic-gan')
 actions_out = os.path.join(out, 'actions')
-if not os.path.exists(models_out): os.makedirs(models_out)
 if not os.path.exists(actions_out): os.makedirs(actions_out)
 
 parser = argparse.ArgumentParser()
@@ -38,9 +36,11 @@ parser.add_argument("--v_size",     type=int,   default=25,    help="size of eac
 parser.add_argument("--channels",   type=int,   default=3,     help="number of channels (coordinates)")
 parser.add_argument("--dataset",    type=str,   default="ntu", help="dataset")
 parser.add_argument("--model",      type=str,   default="runs/cgc-gan/exp7/models/generator_1375000.pth", help="path to gen model")
-parser.add_argument("--stochastic", action='store_true',       help="Generate one sample and verify stochasticity")
+parser.add_argument("--stochastic", action='store_true',       help="Generate/Get one sample and verify stochasticity")
+parser.add_argument("--stochastic_file", type=str, default="-", help="Read one sample and verify stochasticity")
+parser.add_argument("--stochastic_index", type=int, default=0, help="Sample index to get your latent point")
 parser.add_argument("--gen_qtd",    type=int,   default=1000,  help="How many samples to generate per class")
-parser.add_argument("--trunc",      type=float, default=0.7,   help="Truncation sigma")
+parser.add_argument("--trunc",      type=float, default=0.95,   help="Truncation sigma")
 parser.add_argument("--trunc_mode", type=str,   default='w',   choices=['z', 'w', '-'], help="Truncation mode (check paper for details)")
 parser.add_argument("--mean_size",  type=int,   default=1000,  help="Samples to estimate mean")
 opt = parser.parse_args()
@@ -72,8 +72,13 @@ new_labels = []
 classes = np.arange(opt.n_classes) if opt.label == -1 else [opt.label]
 qtd = opt.batch_size
 
+if opt.stochastic_file!='-':
+    stoch = np.load(opt.stochastic_file) 
+    stoch = np.expand_dims(stoch[opt.stochastic_index], 0)
+    print(stoch.shape)
+
 if opt.stochastic:  # Generate one latent point 
-    z   = Variable(FloatTensor(np.random.normal(0, 1, (1, opt.latent_dim))))
+    z   = Variable(FloatTensor(np.random.normal(0, 1, (1, opt.latent_dim))  if opt.stochastic_file == '-' else stoch ))
     z   = z.repeat(qtd*len(classes),1)
 
 while(len(classes)>0):
@@ -88,14 +93,6 @@ while(len(classes)>0):
 
     new_imgs   = gen_imgs.data.cpu()  if len(new_imgs)==0 else np.concatenate((new_imgs, gen_imgs.data.cpu()), axis=0)
     new_labels = labels_np if len(new_labels)==0 else np.concatenate((new_labels, labels_np), axis=0)
-
-    '''# Samples validity with discriminator
-    validity   = discriminator(gen_imgs, labels).data.cpu().numpy()
-    filter_val = np.where(validity<opt.threshold)[0]
-
-
-    new_imgs   = gen_imgs[filter_val].data.cpu()  if len(new_imgs)==0 else np.concatenate((new_imgs, gen_imgs[filter_val].data.cpu()), axis=0)
-    new_labels = labels_np[filter_val] if len(new_labels)==0 else np.concatenate((new_labels, labels_np[filter_val]), axis=0)'''
     
 
     tmp     = Counter(new_labels)
