@@ -41,9 +41,9 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
+<strong>kinetic-gan-mlp4</strong> | <strong>cross-subject</strong> | <strong>60</strong> | <strong>64</strong> | <strong>3.618</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
 kinetic-gan-mlp8 | cross-subject | 60 | 64 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
-kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xview_mlp6.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xview_mlp6_1410000.pth)
+<strong>kinetic-gan-mlp6</strong> | <strong>cross-view</strong> | <strong>60</strong> | <strong>64</strong> | <strong>4.235</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xview_mlp6.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xview_mlp6_1410000.pth)
 kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xview_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xview_mlp8_1390000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
@@ -54,8 +54,8 @@ kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.u
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp8 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
-kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
+<strong>kinetic-gan-mlp8</strong> | <strong>cross-subject</strong> | <strong>120</strong> | <strong>64</strong> | <strong>5.967</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
+<strong>kinetic-gan-mlp8</strong> | <strong>cross-setup</strong> | <strong>120</strong> | <strong>64</strong> | <strong>6.751</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
