@@ -103,7 +103,7 @@ python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # .
 ```
 
 <div align="center">
-  <img width="100%" alt="Blender Actions" src="./utils/actions-cartesian.gif">
+  <img width="80%" alt="Blender Actions" src="./utils/actions-cartesian.gif">
 </div>
 
 
