@@ -146,7 +146,7 @@ python generate.py --model model_path  --n_classes number_classes  --dataset ntu
 ```bash
 python evaluation/fid-actions.py  path_real_samples  path_real_labels  path_fake_samples  path_fake_labels 
 ```
-3. To evaluate with MMD (avg - MMDa, joint - MMDs) with generated samples (saved in last `exp<id>` directory), do not forget to specify the dataset. Can take up to 5/10 minutes:
+3. To evaluate with MMD (avg - MMDa, joint - MMDs) with generated samples (saved in last `exp<id>` directory), do not forget to specify the dataset (check `evaluation/mmd-actions.py` for details). Can take up to 5/10 minutes:
 ```bash
 python evaluation/mmd-actions.py  --mmd_mode avg_or_joint  --data_real real_data  --labels_real real_labels  --data_fake fake_samples  --labels_fake fake_labels 
 ```
