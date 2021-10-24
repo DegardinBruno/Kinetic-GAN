@@ -65,7 +65,7 @@ arch     | benchmark | actions | frame length | FID | Config | Model
 
 arch     | actions | frame length | MMDa | MMDs | Config | Model
 -------- | ------- | ------------ | ---- | ---- | ------ | -----
-kinetic-gan-mlp6 | 10 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_ntu_xsub_mlp4_1370000.pth)
+kinetic-gan-mlp4 | 10 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_mlp4_h36m_32.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_mlp4_h36m_32_390000.pth)
 kinetic-gan-mlp8 | 10 | 64 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/config_mlp8_h36m_64.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/generator_mlp8_h36m_64_440000.pth)
 kinetic-gan-mlp8 | 10 | 128 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/config_mlp8_h36m_128.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/generator_mlp8_h36m_128_500000.pth)
 kinetic-gan-mlp8 | 10 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/config_mlp8_h36m_256.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/generator_mlp8_h36m_256_525000.pth)
