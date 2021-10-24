@@ -16,10 +16,10 @@ Material related to our paper is available via the following links:
 - Video: TBA
 - Code: https://github.com/DegardinBruno/Kinetic-GAN
 - Datasets (ready to use!)
-  - NTU RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu120.zip)
-  - NTU-120 RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu120.zip) and uncompress it.
-  - NTU-2D RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu120.zip)
-  - Human3.6M: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu120.zip)
+  - NTU RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU/ntu.zip) and uncompress it.
+  - NTU-120 RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu-120.zip) and uncompress it.
+  - NTU-2D RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU2D/ntu-2d.zip) and uncompress it.
+  - Human3.6M: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/H36M/h36m.zip) and uncompress it.
 
 
 ## System requirements and Installation
