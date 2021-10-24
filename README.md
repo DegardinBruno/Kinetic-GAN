@@ -150,3 +150,13 @@ python evaluation/fid-actions.py  path_real_samples  path_real_labels  path_fake
 ```bash
 python evaluation/mmd-actions.py  --mmd_mode avg_or_joint  --data_real real_data  --labels_real real_labels  --data_fake fake_samples  --labels_fake fake_labels 
 ```
+
+## Citation
+Please cite this paper in your publications if it helps your research:
+
+    @article{degardin2021regina,
+      title={Generative Adversarial Graph Convolutional Networks for Human Action Synthesis},
+      author={Bruno Degardin, Joao Neves, Vasco Lopes, Joao Brito, Ehsan Yaghoubi, Hugo Proenca},
+      journal={arXiv preprint arXiv:2110.11191},
+      year={2021}
+    }
