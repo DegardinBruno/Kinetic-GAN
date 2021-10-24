@@ -102,11 +102,16 @@ python visualization/action_ntu.py --path path_samples --indexes 23 83 143   # .
 python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # ...Example for `kicking something` action.
 ```
 
+<div align="center">
+  <img width="100%" alt="Blender Actions" src="./utils/actions-cartesian.gif">
+</div>
+
+
 ### Blender Visualization
 Blender visualization (with mesh) is only applied for a more appealing visualization. For accessing and reproducing our visualization, use specifically our [blender.py](./visualization/blender.py) with [Blender 2.9+ with Python interpreter](https://www.blender.org/download/) (Interpreter already included in Blender). 
 
 <div align="center">
-  <img width="100%" alt="Blender Actions" src="./utils/actions.gif">
+  <img width="100%" alt="Blender Actions" src="./utils/actions-blender.gif">
 </div>
 
 Kinetic-GAN generates up to 120 different skeleton actions trained on skeleton-based datasets, which do not have bone rotations specified and dependable by their parent bones, and may cause some poor visualizations with a mesh sometimes (check the initial gif at early iterations).
