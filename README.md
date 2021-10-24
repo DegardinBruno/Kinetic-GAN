@@ -41,8 +41,10 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp4 | cross-subject | 60 | 64 | 3.618 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
+kinetic-gan-mlp8 | cross-subject | 60 | 64 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
+kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xview_mlp6.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xview_mlp6_1410000.pth)
+kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xview_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xview_mlp8_1390000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
@@ -52,8 +54,8 @@ kinetic-gan-mlp6 | cross-view | 60 | 64 | 4.235 | [config](http://socia-lab.di.u
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-kinetic-gan-mlp6 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp8 | cross-subject | 120 | 64 | 5.967 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
+kinetic-gan-mlp8 | cross-setup | 120 | 64 | 6.751 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
@@ -99,7 +101,7 @@ Training will save 10 samples per class at each specified iteration interval. Fo
 ```bash
 python visualization/action_ntu.py --path path_samples --indexes 26 86 146   # ... Example for `jump up` action.
 python visualization/action_ntu.py --path path_samples --indexes 23 83 143   # ... Example for `kicking something` action.
-python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # ...Example for `kicking something` action.
+python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # ... Example for `walking` action.
 ```
 
 <div align="center">
@@ -123,14 +125,25 @@ Datasets are ready to use, after downloading from [resources](https://github.com
 1. Edit or use [kinetic-gan.py](./kinetic-gan.py) to specify the dataset and training configuration and arguments.
 2. Run the training script with:
 ```bash
-python kinetic-gan.py  --data_path path_train_data.npy  --label_path path_train_labels.pkl  --dataset which_dataset  # check kinetic-gan.py file
+python kinetic-gan.py  --data_path path_train_data.npy  --label_path path_train_labels.pkl  --dataset ntu_or_h36m  # check kinetic-gan.py file
 ```
 3. The experiments (files, loss, weights and samples) are written to a newly created directory `runs/kinetic-gan/exp<id>`.
-4. For following up the training loss run:
+4. For following up the training loss run (it will save image at the `exp<id>` directory):
 ```bash
 python visualization/plot_loss.py --batches num_batches_per_epoch --runs kinetic-gan  # check plot_loss.py file
 ```
 5. Training may take up to 48 or 72 hours to complete (using gpu), depending on the configuration and dataset.
 
 
+## Quality metrics
+Similar to image modelling, evaluation is performed where the generative algorithm was trained to compare both distributions. We strongly recommend using FID metric for further works, which is far more descriptive than MMD (check paper results to see the gap between better and worst configurations w.r.t. both metrics).<br/>
+1. generate your samples (synthetic distribution). All experiments were computed by generating 1000 samples per action class on all datasets. Check model's configs to set up your generator:
+
+```bash
+python generate.py --model model_path  --n_classes number_classes  --dataset ntu_or_h36m  --gen_qtd 1000  # Check model configs to set up the generator
+```
+2. Evaluate with FID with generated samples (saved in last `exp<id>` directory), can take up to 10/15 minutes:
+```bash
+python evaluation/fid-actions.py  path_real_samples  path_real_labels  path_fake_samples  path_fake_labels 
+```
 
