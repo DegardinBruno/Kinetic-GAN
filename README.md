@@ -37,7 +37,7 @@ pip install -r requirements.txt  # use flag --user if permission needed
 
 PyTorchVideo provides reference implementation of a large number of video understanding approaches. In this document, we also provide comprehensive benchmarks to evaluate the supported models on different datasets using standard evaluation setup. All the models can be downloaded from the provided links.
 
-### NTU RGB+D
+### NTU RGB+D (60 action classes)
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
@@ -50,7 +50,7 @@ kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.u
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
 
 
-### NTU-120 RGB+D
+### NTU-120 RGB+D (120 action classes)
 
 arch     | benchmark | actions | frame length | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
@@ -61,16 +61,16 @@ arch     | benchmark | actions | frame length | FID | Config | Model
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
 
 
-### Human3.6M
+### Human3.6M (10 action classes)
 
 arch     | actions | frame length | MMDa | MMDs | Config | Model
 -------- | ------- | ------------ | ---- | ---- | ------ | -----
-kinetic-gan-mlp6 | 120 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | 120 | 64 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | 120 | 128 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | 120 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | 120 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
-kinetic-gan-mlp8 | 120 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt) | [weights](http://socia-lab.di.ubi.pt)
+kinetic-gan-mlp6 | 10 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_ntu_xsub_mlp4_1370000.pth)
+kinetic-gan-mlp8 | 10 | 64 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/config_mlp8_h36m_64.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/generator_mlp8_h36m_64_440000.pth)
+kinetic-gan-mlp8 | 10 | 128 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/config_mlp8_h36m_128.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/generator_mlp8_h36m_128_500000.pth)
+kinetic-gan-mlp8 | 10 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/config_mlp8_h36m_256.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/generator_mlp8_h36m_256_525000.pth)
+kinetic-gan-mlp4 | 10 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/config_h36m_512_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/generator_h36m_512_mlp4_455000.pth)
+kinetic-gan-mlp4 | 10 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/config_h36m_1024_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/generator_h36m_1024_mlp4_650000.pth)
 
 *MMD results can differ a bit due to random normal distribution and random noise<br />
 **Additionally, MMD metric is not as "stable" and descriptive as FID, check paper results and visual quality.
