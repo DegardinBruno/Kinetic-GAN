@@ -54,7 +54,7 @@ skl = 25  # 5
 
 data = data_o[skl,:,:,:,0]*16
 data = np.transpose(data, (1,2,0))
-data = np.array(rotation(data, -110, 0,0))  # - backwards, + forward; Rotate on x-axis and y-axis to align visualization
+data = np.array(rotation(data, -110, 0,0))  # x, y, z, EDIT ONLY X, - will go backwards, + will go forward; Rotate on x-axis and y-axis to align visualization
 data = np.array(normal_skeleton(data))  # Align to zero, comment if no need
 
 

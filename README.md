@@ -15,7 +15,7 @@ Material related to our paper is available via the following links:
 - Paper: https://arxiv.org/abs/2110.11191
 - Video: TBA
 - Code: https://github.com/DegardinBruno/Kinetic-GAN
-- Datasets (ready to use!)
+- Datasets (ready to use!):
   - NTU RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU/ntu.zip) and uncompress it.
   - NTU-120 RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu-120.zip) and uncompress it.
   - NTU-2D RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU2D/ntu-2d.zip) and uncompress it.
@@ -108,7 +108,7 @@ python visualization/action_ntu.py --path path_samples --indexes 58 118 178  # .
 
 
 ### Blender Visualization
-Blender visualization (with mesh) is only applied for a more appealing visualization. For accessing and reproducing our visualization, use specifically our [blender.py](./visualization/blender.py) with [Blender 2.9+ with Python interpreter](https://www.blender.org/download/) (Interpreter already included in Blender). 
+Blender visualization (with mesh) is only applied for a more appealing visualization. For accessing and reproducing our visualization, use specifically our [blender.py](./visualization/blender.py) and [Blender 2.9+ with Python interpreter](https://www.blender.org/download/) (Interpreter already included in Blender) with [blend file](./visualization/file-initial.blend). [IMPORTANT] Armature needs to be at that specific start position (ctrl-z to return), and configure rotation on X-axis for better visualization.
 
 <div align="center">
   <img width="100%" alt="Blender Actions" src="./utils/actions-blender.gif">
