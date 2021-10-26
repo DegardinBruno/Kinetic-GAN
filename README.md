@@ -39,7 +39,7 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 ### NTU RGB+D (60 action classes)
 
-arch     | benchmark | actions | frame length x coordinate dimensions | FID | Config | Model
+arch     | benchmark | actions | frame length x<br /> coordinate dimensions | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
 <strong>kinetic-gan-mlp4</strong> | <strong>cross-subject</strong> | <strong>60</strong> | <strong>64 x 3</strong> | <strong>3.618</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
 kinetic-gan-mlp8 | cross-subject | 60 | 64 x 3 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
