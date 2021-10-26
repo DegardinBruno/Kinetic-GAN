@@ -39,7 +39,7 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 ### NTU RGB+D (60 action classes)
 
-arch     | benchmark | actions | frame length x<br /> coordinate dimensions | FID | Config | Model
+arch     | benchmark | actions | frame length x<br /> coordinates dimensions | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
 <strong>kinetic-gan-mlp4</strong> | <strong>cross-subject</strong> | <strong>60</strong> | <strong>64 x 3</strong> | <strong>3.618</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
 kinetic-gan-mlp8 | cross-subject | 60 | 64 x 3 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
@@ -52,7 +52,7 @@ kinetic-gan-mlp8 | cross-view | 60 | 64 x 3 | 4.610 | [config](http://socia-lab.
 
 ### NTU-120 RGB+D (120 action classes)
 
-arch     | benchmark | actions | frame length x coordinate dimensions | FID | Config | Model
+arch     | benchmark | actions | frame length x<br /> coordinates dimensions | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
 <strong>kinetic-gan-mlp8</strong> | <strong>cross-subject</strong> | <strong>120</strong> | <strong>64 x 3</strong> | <strong>5.967</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
 <strong>kinetic-gan-mlp8</strong> | <strong>cross-setup</strong> | <strong>120</strong> | <strong>64 x 3</strong> | <strong>6.751</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
@@ -63,7 +63,7 @@ arch     | benchmark | actions | frame length x coordinate dimensions | FID | Co
 
 ### Human3.6M (10 action classes)
 
-arch     | actions | frame length x coordinate dimensions | MMDa | MMDs | Config | Model
+arch     | actions | frame length x<br /> coordinates dimensions | MMDa | MMDs | Config | Model
 -------- | ------- | ------------ | ---- | ---- | ------ | -----
 kinetic-gan-mlp4 | 10 | 32 x 2 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_mlp4_h36m_32.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_mlp4_h36m_32_390000.pth)
 kinetic-gan-mlp8 | 10 | 64 x 2 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/config_mlp8_h36m_64.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/generator_mlp8_h36m_64_440000.pth)
