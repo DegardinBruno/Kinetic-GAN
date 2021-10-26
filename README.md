@@ -39,12 +39,12 @@ PyTorchVideo provides reference implementation of a large number of video unders
 
 ### NTU RGB+D (60 action classes)
 
-arch     | benchmark | actions | frame length | FID | Config | Model
+arch     | benchmark | actions | frame length x coordinate dimensions | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-<strong>kinetic-gan-mlp4</strong> | <strong>cross-subject</strong> | <strong>60</strong> | <strong>64</strong> | <strong>3.618</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
-kinetic-gan-mlp8 | cross-subject | 60 | 64 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
-<strong>kinetic-gan-mlp6</strong> | <strong>cross-view</strong> | <strong>60</strong> | <strong>64</strong> | <strong>4.235</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/config_ntu_xview_mlp6.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/generator_ntu_xview_mlp6_1410000.pth)
-kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/config_ntu_xview_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/generator_ntu_xview_mlp8_1390000.pth)
+<strong>kinetic-gan-mlp4</strong> | <strong>cross-subject</strong> | <strong>60</strong> | <strong>64 x 3</strong> | <strong>3.618</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp4_1370000.pth)
+kinetic-gan-mlp8 | cross-subject | 60 | 64 x 3 | 4.396 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/config_ntu_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xsub/generator_ntu_xsub_mlp8_1251000.pth)
+<strong>kinetic-gan-mlp6</strong> | <strong>cross-view</strong> | <strong>60</strong> | <strong>64 x 3</strong> | <strong>4.235</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/config_ntu_xview_mlp6.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/generator_ntu_xview_mlp6_1410000.pth)
+kinetic-gan-mlp8 | cross-view | 60 | 64 x 3 | 4.610 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/config_ntu_xview_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU/xview/generator_ntu_xview_mlp8_1390000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
@@ -52,10 +52,10 @@ kinetic-gan-mlp8 | cross-view | 60 | 64 | 4.610 | [config](http://socia-lab.di.u
 
 ### NTU-120 RGB+D (120 action classes)
 
-arch     | benchmark | actions | frame length | FID | Config | Model
+arch     | benchmark | actions | frame length x coordinate dimensions | FID | Config | Model
 -------- | --------- | ------- | ------------ | --- | ------ | -----
-<strong>kinetic-gan-mlp8</strong> | <strong>cross-subject</strong> | <strong>120</strong> | <strong>64</strong> | <strong>5.967</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
-<strong>kinetic-gan-mlp8</strong> | <strong>cross-setup</strong> | <strong>120</strong> | <strong>64</strong> | <strong>6.751</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
+<strong>kinetic-gan-mlp8</strong> | <strong>cross-subject</strong> | <strong>120</strong> | <strong>64 x 3</strong> | <strong>5.967</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/config_ntu120_xsub_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsub/generator_ntu120_xsub_mlp8_2150000.pth)
+<strong>kinetic-gan-mlp8</strong> | <strong>cross-setup</strong> | <strong>120</strong> | <strong>64 x 3</strong> | <strong>6.751</strong> | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/config_ntu120_xsetup_mlp8.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/NTU120/xsetup/generator_ntu120_xsetup_mlp8_2275000.pth)
 
 *FID results can differ a bit due to random normal distribution and random noise<br />
 ** Better action control with MLP-depth 8 (check by yourself with visualization)
@@ -63,14 +63,14 @@ arch     | benchmark | actions | frame length | FID | Config | Model
 
 ### Human3.6M (10 action classes)
 
-arch     | actions | frame length | MMDa | MMDs | Config | Model
+arch     | actions | frame length x coordinate dimensions | MMDa | MMDs | Config | Model
 -------- | ------- | ------------ | ---- | ---- | ------ | -----
-kinetic-gan-mlp4 | 10 | 32 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_mlp4_h36m_32.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_mlp4_h36m_32_390000.pth)
-kinetic-gan-mlp8 | 10 | 64 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/config_mlp8_h36m_64.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/generator_mlp8_h36m_64_440000.pth)
-kinetic-gan-mlp8 | 10 | 128 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/config_mlp8_h36m_128.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/generator_mlp8_h36m_128_500000.pth)
-kinetic-gan-mlp8 | 10 | 256 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/config_mlp8_h36m_256.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/generator_mlp8_h36m_256_525000.pth)
-kinetic-gan-mlp4 | 10 | 512 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/config_h36m_512_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/generator_h36m_512_mlp4_455000.pth)
-kinetic-gan-mlp4 | 10 | 1024 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/config_h36m_1024_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/generator_h36m_1024_mlp4_650000.pth)
+kinetic-gan-mlp4 | 10 | 32 x 2 | 0.071 | 0.079 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/config_mlp4_h36m_32.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/32/generator_mlp4_h36m_32_390000.pth)
+kinetic-gan-mlp8 | 10 | 64 x 2 | 0.074 | 0.088 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/config_mlp8_h36m_64.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/64/generator_mlp8_h36m_64_440000.pth)
+kinetic-gan-mlp8 | 10 | 128 x 2 | 0.076 | 0.102 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/config_mlp8_h36m_128.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/128/generator_mlp8_h36m_128_500000.pth)
+kinetic-gan-mlp8 | 10 | 256 x 2 | 0.081 | 0.112 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/config_mlp8_h36m_256.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/256/generator_mlp8_h36m_256_525000.pth)
+kinetic-gan-mlp4 | 10 | 512 x 2 | 0.087 | 0.115 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/config_h36m_512_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/512/generator_h36m_512_mlp4_455000.pth)
+kinetic-gan-mlp4 | 10 | 1024 x 2 | 0.092 | 0.121 | [config](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/config_h36m_1024_mlp4.txt) | [weights](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/models/H36M/1024/generator_h36m_1024_mlp4_650000.pth)
 
 *MMD results can differ a bit due to random normal distribution and random noise<br />
 **Additionally, MMD metric is not as "stable" and descriptive as FID, check paper results and visual quality.
