@@ -68,6 +68,7 @@ generator.eval()
 
 new_imgs   = []
 new_labels = []
+z_s        = []
 
 classes = np.arange(opt.n_classes) if opt.label == -1 else [opt.label]
 qtd = opt.batch_size
@@ -93,6 +94,7 @@ while(len(classes)>0):
 
     new_imgs   = gen_imgs.data.cpu()  if len(new_imgs)==0 else np.concatenate((new_imgs, gen_imgs.data.cpu()), axis=0)
     new_labels = labels_np if len(new_labels)==0 else np.concatenate((new_labels, labels_np), axis=0)
+    z_s        = z.cpu()  if len(z_s)==0 else np.concatenate((z_s, z.cpu()), axis=0)   
     
 
     tmp     = Counter(new_labels)
