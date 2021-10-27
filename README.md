@@ -7,6 +7,8 @@ This repository contains the official PyTorch implementation of the following pa
 </div>
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/generative-adversarial-graph-convolutional/human-action-generation-on-ntu-rgb-d)](https://paperswithcode.com/sota/human-action-generation-on-ntu-rgb-d?p=generative-adversarial-graph-convolutional)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/generative-adversarial-graph-convolutional/human-action-generation-on-ntu-rgb-d-120)](https://paperswithcode.com/sota/human-action-generation-on-ntu-rgb-d-120?p=generative-adversarial-graph-convolutional)
+
 
 ## Resources
 
