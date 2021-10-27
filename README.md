@@ -6,7 +6,7 @@ This repository contains the official PyTorch implementation of the following pa
   <img width="100%" alt="Kinetic-GAN Illustration" src="./utils/simple_demo.gif">
 </div>
 
-
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/generative-adversarial-graph-convolutional/human-action-generation-on-ntu-rgb-d)](https://paperswithcode.com/sota/human-action-generation-on-ntu-rgb-d?p=generative-adversarial-graph-convolutional)
 
 ## Resources
 
