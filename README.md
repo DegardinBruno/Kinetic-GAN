@@ -154,7 +154,7 @@ python evaluation/mmd-actions.py  --mmd_mode avg_or_joint  --data_real real_data
 ```
 
 ## Citation
-Please cite this paper in your publications if it helps your research:
+If you find this repository useful, please consider giving a star :star: and citation :t-rex::
 
     @article{degardin2021generative,
       title={Generative Adversarial Graph Convolutional Networks for Human Action Synthesis},
