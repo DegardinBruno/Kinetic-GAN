@@ -153,6 +153,9 @@ python evaluation/fid-actions.py  path_real_samples  path_real_labels  path_fake
 python evaluation/mmd-actions.py  --mmd_mode avg_or_joint  --data_real real_data  --labels_real real_labels  --data_fake fake_samples  --labels_fake fake_labels 
 ```
 
+## Stochastic Variation
+Coming soon. Contact me in case of urgency.
+
 ## Citation
 If you find this repository useful, please consider giving a star :star: and citation :t-rex::
 
