@@ -1,9 +1,3 @@
-<div align="center">
-  <img width="100%" alt="Kinetic-GAN Illustration" src="./utils/arch_demo.gif">
-</div>
-
------------------
-
 # Kinetic-GAN
 This repository contains the official PyTorch implementation of the following paper:
 > **Generative Adversarial Graph Convolutional Networks for Human Action Synthesis**, Bruno Degardin, João Neves, Vasco Lopes, João Brito, Ehsan Yaghoubi and Hugo Proença, WACV 2022. [[Arxiv Preprint]](https://arxiv.org/abs/2110.11191)
@@ -11,6 +5,9 @@ This repository contains the official PyTorch implementation of the following pa
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/generative-adversarial-graph-convolutional/human-action-generation-on-ntu-rgb-d)](https://paperswithcode.com/sota/human-action-generation-on-ntu-rgb-d?p=generative-adversarial-graph-convolutional)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/generative-adversarial-graph-convolutional/human-action-generation-on-ntu-rgb-d-120)](https://paperswithcode.com/sota/human-action-generation-on-ntu-rgb-d-120?p=generative-adversarial-graph-convolutional)
 
+<div align="center">
+  <img width="100%" alt="Kinetic-GAN Illustration" src="./utils/arch_demo.gif">
+</div>
 
 ## Resources
 
