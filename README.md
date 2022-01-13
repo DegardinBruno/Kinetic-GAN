@@ -158,9 +158,10 @@ Coming soon. Contact me in case of urgency.
 ## Citation
 If you find this repository useful, please consider giving a star :star: and citation :t-rex::
 
-    @article{degardin2021generative,
+    @inproceedings{degardin2022generative,
       title={Generative Adversarial Graph Convolutional Networks for Human Action Synthesis},
-      author={Bruno Degardin, Joao Neves, Vasco Lopes, Joao Brito, Ehsan Yaghoubi, Hugo Proenca},
-      journal={arXiv preprint arXiv:2110.11191},
-      year={2021}
+      author={Degardin, Bruno and Neves, Jo{\~a}o and Lopes, Vasco and Brito, Jo{\~a}o and Yaghoubi, Ehsan and Proen{\c{c}}a, Hugo},
+      booktitle={Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision},
+      pages={1150--1159},
+      year={2022}
     }
