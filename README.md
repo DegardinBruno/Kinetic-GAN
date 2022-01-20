@@ -14,8 +14,9 @@ This repository contains the official PyTorch implementation of the following pa
 Material related to our paper is available via the following links:
 
 - Paper: https://arxiv.org/abs/2110.11191
-- Video: [ComputerVisionFoundation Youtube](https://www.youtube.com/watch?v=37c9_xQb5EY)
+- Video: [Youtube Demo](https://www.youtube.com/watch?v=37c9_xQb5EY)
 - Code: https://github.com/DegardinBruno/Kinetic-GAN
+- Poster: [Kinetic-GAN Poster](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/Kinetic_GAN_Poster.pdf)
 - Datasets (ready to use!):
   - NTU RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU/ntu.zip) and uncompress it.
   - NTU-120 RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu-120.zip) and uncompress it.
