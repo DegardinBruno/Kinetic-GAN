@@ -21,7 +21,7 @@ def trunc(latent, mean_size, truncation):  # Truncation trick on Z
     return latent
 
 
-out         = general.check_runs('kinetic-gan')
+out         = general.check_runs('kinetic-gan', id=-1)
 actions_out = os.path.join(out, 'actions')
 if not os.path.exists(actions_out): os.makedirs(actions_out)
 
@@ -35,7 +35,7 @@ parser.add_argument("--t_size",     type=int,   default=64,    help="size of eac
 parser.add_argument("--v_size",     type=int,   default=25,    help="size of each spatial dimension (vertices)")
 parser.add_argument("--channels",   type=int,   default=3,     help="number of channels (coordinates)")
 parser.add_argument("--dataset",    type=str,   default="ntu", help="dataset")
-parser.add_argument("--model",      type=str,   default="runs/cgc-gan/exp7/models/generator_1375000.pth", help="path to gen model")
+parser.add_argument("--model",      type=str,   default="runs/kinetic-gan/exp1/models/generator_ntu_xsub_mlp4_1370000.pth", help="path to gen model")
 parser.add_argument("--stochastic", action='store_true',       help="Generate/Get one sample and verify stochasticity")
 parser.add_argument("--stochastic_file", type=str, default="-", help="Read one sample and verify stochasticity")
 parser.add_argument("--stochastic_index", type=int, default=0, help="Sample index to get your latent point")
@@ -54,7 +54,7 @@ cuda = True if torch.cuda.is_available() else False
 print(cuda)
 
 # Initialize generator 
-generator     = Generator(opt.latent_dim, opt.channels, opt.n_classes, opt.t_size, dataset=opt.dataset)
+generator     = Generator(opt.latent_dim, opt.channels, opt.n_classes, opt.t_size, mlp_dim=opt.mlp_dim, dataset=opt.dataset)
 
 if cuda:
     generator.cuda()
@@ -63,7 +63,7 @@ FloatTensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 LongTensor = torch.cuda.LongTensor if cuda else torch.LongTensor
 
 # Load Models
-generator.load_state_dict(torch.load(opt.model))
+generator.load_state_dict(torch.load(opt.model), strict=False)
 generator.eval()
 
 new_imgs   = []
