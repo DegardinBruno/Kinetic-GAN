@@ -17,7 +17,7 @@ Material related to our paper is available via the following links:
 - Video: [Youtube Demo](https://www.youtube.com/watch?v=37c9_xQb5EY)
 - Code: https://github.com/DegardinBruno/Kinetic-GAN
 - Poster: [Kinetic-GAN Poster](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/Kinetic_GAN_Poster.pdf)
-- Datasets (ready to use!):
+- Datasets (ready to use, **send email** / **open issue** if server is down):
   - NTU RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU/ntu.zip) and uncompress it.
   - NTU-120 RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU120/ntu-120.zip) and uncompress it.
   - NTU-2D RGB+D: [Download](http://socia-lab.di.ubi.pt/~bruno/kinetic-gan/datasets/NTU2D/ntu-2d.zip) and uncompress it.
@@ -37,7 +37,7 @@ pip install -r requirements.txt  # use flag --user if permission needed
 
 ## Model Zoo and Benchmarks
 
-We provide comprehensive benchmarks to evaluate the supported models on different datasets using standard evaluation setup. All the models can be downloaded from the provided links.
+We provide comprehensive benchmarks to evaluate the supported models on different datasets using standard evaluation setup. All the models can be downloaded from the provided links. **Send email** / **open issue** if server is down.
 
 ### NTU RGB+D (60 action classes)
 
